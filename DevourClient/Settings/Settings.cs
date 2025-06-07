@@ -13,7 +13,6 @@ namespace DevourClient.Settings
         public static Color player_esp_color = new Color(0.00f, 1.00f, 0.00f, 1);
         public static Color azazel_esp_color = new Color(1.00f, 0.00f, 0.00f, 1);
         public static float speed = 1f;
-        // public const string message_to_spam = " ";
         public static KeyCode flyKey = KeyCode.None;
         public static Vector2 itemsScrollPosition = Vector2.zero;
         public static Vector2 rituelObjectsScrollPosition = Vector2.zero;
