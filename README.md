@@ -107,6 +107,7 @@ In order to get all of this working you need to generate the DevourClient.dll fi
 * `C:\Program Files (x86)\Steam\steamapps\common\Devour\MelonLoader\Il2CppAssemblies\UnityEngine.AnimationModule.dll`
 * `C:\Program Files (x86)\Steam\steamapps\common\Devour\MelonLoader\Il2CppAssemblies\UnityEngine.PhysicsModule.dll`
 * `C:\Program Files (x86)\Steam\steamapps\common\Devour\MelonLoader\Il2CppAssemblies\Il2Cppcom.rlabrecque.steamworks.net.dll`
+* `C:\Program Files (x86)\Steam\steamapps\common\Devour\MelonLoader\Il2CppAssemblies\unity.TextMeshPro. dll`
 8. Build the solutions in Release | Any CPU
 
 ## Contact
