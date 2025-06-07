@@ -72,10 +72,14 @@ In order to get all of this working you need to generate the DevourClient.dll fi
 
 ## Chinese Installation Tutorial
 如果你只是想要安装这个插件，直接在游戏里使用的话
+
 1、安装 .net 6 的运行环境 → (https://dotnet.microsoft.com/en-us/download/dotnet/6.0)
+
 2、安装melonloader → (https://github.com/LavaGang/MelonLoader/releases)
     版本无限制，尽量选择新版即可。打开melonloader页面后，点击devour进入安装界面，全部默认即可，无需勾选或修改其他选项，点击install进行安装（安装过程中可能需要vpn支持）
+    
 3、安装dll文件 → 从本项目的release中下载最新的dll文件，然后将此文件添加到你的devour的安装目录中的mods文件夹里（不知道目录的情况下，可以在steam中右键devour，选择“管理”-“浏览本地文件”即可）
+
 4、运行devour → 如果安装成功，你会看到一个windows窗口进行各类安装提示后，自动进入游戏。点击insert键即可打开和关闭devourclient窗口
 
 如果你想要对代码进行修改和开发，请按照下面的”building from source“的步骤，逐步进行
