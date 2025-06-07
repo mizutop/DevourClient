@@ -76,7 +76,7 @@ In order to get all of this working you need to generate the DevourClient.dll fi
 1、安装 .net 6 的运行环境 → (https://dotnet.microsoft.com/en-us/download/dotnet/6.0)
 
 2、安装melonloader → (https://github.com/LavaGang/MelonLoader/releases)
-    版本无限制，尽量选择新版即可。打开melonloader页面后，点击devour进入安装界面，全部默认即可，无需勾选或修改其他选项，点击install进行安装（安装过程中可能需要vpn支持）
+        版本无限制，尽量选择新版即可。打开melonloader页面后，点击devour进入安装界面，全部默认即可，无需勾选或修改其他选项，点击install进行安装（安装过程中可能需要vpn支持）
     
 3、安装dll文件 → 从本项目的release中下载最新的dll文件，然后将此文件添加到你的devour的安装目录中的mods文件夹里（不知道目录的情况下，可以在steam中右键devour，选择“管理”-“浏览本地文件”即可）
 
