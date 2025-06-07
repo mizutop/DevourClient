@@ -4,7 +4,7 @@ using System.Collections.Generic;
 
 namespace DevourClient.Helpers
 {
-    public static class GUIHelper  // 改为静态类
+    public static class GUIHelper
     {
         private static Texture2D previewTexture;
         private static GUIStyle boxStyle;
@@ -12,7 +12,7 @@ namespace DevourClient.Helpers
         private static Dictionary<Color, Texture2D> colorTextureCache = new Dictionary<Color, Texture2D>();
         private static Dictionary<int, Texture2D> circularTextureCache = new Dictionary<int, Texture2D>();
         
-        // 初始化方法
+
         public static void Initialize()
         {
             if (previewTexture == null)
@@ -22,7 +22,7 @@ namespace DevourClient.Helpers
             }
         }
 
-        // 清理方法
+
         public static void Cleanup()
         {
             if (previewTexture != null)
@@ -56,29 +56,28 @@ namespace DevourClient.Helpers
 
         public static Color ColorPick(string title, Color color)
         {
-            Initialize();  // 确保已初始化
+            Initialize();
 
-            // 使用 GUILayout 来创建更可靠的滑动条
             GUILayout.BeginArea(new Rect(Settings.Settings.x + 195, Settings.Settings.y + 70, 250, 250));
             
             GUILayout.Label(title);
             GUILayout.Space(10);
 
-            // R 通道
+
             GUILayout.BeginHorizontal();
             GUILayout.Label("R", GUILayout.Width(20));
             R = GUILayout.HorizontalSlider(color.r, 0f, 1f, GUILayout.Width(150));
             GUILayout.Label(((int)(R * 255)).ToString(), GUILayout.Width(30));
             GUILayout.EndHorizontal();
 
-            // G 通道
+
             GUILayout.BeginHorizontal();
             GUILayout.Label("G", GUILayout.Width(20));
             G = GUILayout.HorizontalSlider(color.g, 0f, 1f, GUILayout.Width(150));
             GUILayout.Label(((int)(G * 255)).ToString(), GUILayout.Width(30));
             GUILayout.EndHorizontal();
 
-            // B 通道
+
             GUILayout.BeginHorizontal();
             GUILayout.Label("B", GUILayout.Width(20));
             B = GUILayout.HorizontalSlider(color.b, 0f, 1f, GUILayout.Width(150));
@@ -87,7 +86,7 @@ namespace DevourClient.Helpers
 
             GUILayout.Space(10);
 
-            // 颜色预览
+
             void DrawPreview(Color color_to_draw)
             {
                 if (previewTexture == null)
