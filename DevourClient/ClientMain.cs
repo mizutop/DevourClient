@@ -1,4 +1,4 @@
-﻿using DevourClient.Helpers;
+using DevourClient.Helpers;
 using MelonLoader;
 using System.Threading.Tasks;
 using Il2CppPhoton.Bolt;
@@ -64,28 +64,42 @@ namespace DevourClient
         static bool should_show_start_message = true;
         static Texture2D crosshairTexture = default!;
 
+        private static string spamMessageText = "Deez Nutz";
+        private static string steamNameText = "patate";
+        private static string serverNameText = "patate on top !";
+        private static float spamMessageInterval = 5f; // Default send interval in seconds
+        private static float spamMessageTimer = 0f;    // Timer
+
         public void Start()
         {
             MelonLogger.Msg("For the Queen !");
+            Hacks.Misc.ShowMessageBox("For the Queen !");
             MelonLogger.Warning("Made with <3 by patate and Jadis.");
+            Hacks.Misc.ShowMessageBox("Made with <3 by patate and Jadis.");
             MelonLogger.Warning("Github : https://github.com/ALittlePatate/DevourClient");
+            Hacks.Misc.ShowMessageBox("Github : https://github.com/ALittlePatate/DevourClient");
             MelonLogger.Warning("Note : if you payed for this you most likely got scammed.");
+            Hacks.Misc.ShowMessageBox("Note : if you payed for this you most likely got scammed.");
 
             crosshairTexture = Helpers.GUIHelper.GetCircularTexture(5, 5);
 
-            MelonCoroutines.Start(Helpers.Entities.GetLocalPlayer());
-            MelonCoroutines.Start(Helpers.Entities.GetGoatsAndRats());
-            MelonCoroutines.Start(Helpers.Entities.GetSurvivalInteractables());
-            MelonCoroutines.Start(Helpers.Entities.GetKeys());
-            MelonCoroutines.Start(Helpers.Entities.GetDemons());
-            MelonCoroutines.Start(Helpers.Entities.GetSpiders());
-            MelonCoroutines.Start(Helpers.Entities.GetGhosts());
-            MelonCoroutines.Start(Helpers.Entities.GetBoars());
-            MelonCoroutines.Start(Helpers.Entities.GetCorpses());
-            MelonCoroutines.Start(Helpers.Entities.GetCrows());
-            MelonCoroutines.Start(Helpers.Entities.GetLumps());
-            MelonCoroutines.Start(Helpers.Entities.GetAzazels());
-            MelonCoroutines.Start(Helpers.Entities.GetAllPlayers());
+            Helpers.Entities.StartAllCoroutines();
+        }
+
+        public void OnDestroy()
+        {
+            Helpers.Entities.StopAllCoroutines();
+            
+            if (crosshairTexture != null)
+            {
+                UnityEngine.Object.Destroy(crosshairTexture);
+                crosshairTexture = null;
+            }
+        }
+
+        public void OnApplicationQuit()
+        {
+            Helpers.Entities.StopAllCoroutines();
         }
 
         public void Update()
@@ -141,16 +155,6 @@ namespace DevourClient
             }
             else
             {
-                if (change_server_name)
-                {
-                    Hacks.Misc.SetServerName("patate on top !");
-                }
-
-                if (change_steam_name)
-                {
-                    Hacks.Misc.SetSteamName("patate");
-                }
-
                 if (crosshair && in_game_cache)
                 {
                     in_game_cache = false;
@@ -159,8 +163,16 @@ namespace DevourClient
 
             if (spam_message)
             {
-                MelonLogger.Msg("done");
-                Hacks.Misc.MessageSpam(Settings.Settings.message_to_spam);
+                spamMessageTimer += Time.deltaTime;
+                if (spamMessageTimer >= spamMessageInterval)
+                {
+                    Hacks.Misc.MessageSpam(spamMessageText);
+                    spamMessageTimer = 0f; // Reset timer
+                }
+            }
+            else
+            {
+                spamMessageTimer = 0f; // Reset timer when disabled
             }
 
             if (spoofLevel)
@@ -233,15 +245,65 @@ namespace DevourClient
                     should_show_start_message = false;
             }
 
+            // Update error message display time
+            if (Settings.Settings.showErrorMessage)
+            {
+                Settings.Settings.errorMessageDisplayTime += Time.deltaTime;
+                if (Settings.Settings.errorMessageDisplayTime >= Settings.Settings.errorMessageMaxDisplayTime)
+                {
+                    Settings.Settings.showErrorMessage = false;
+                }
+            }
+
+
+            if (Settings.Settings.showErrorMessage)
+            {
+                GUIStyle errorBoxStyle = new GUIStyle(GUI.skin.box);
+                errorBoxStyle.normal.background = GUIHelper.MakeTex(2, 2, new Color(0.8f, 0.2f, 0.2f, 0.9f));
+                errorBoxStyle.normal.textColor = Color.white;
+                errorBoxStyle.fontSize = 14;
+                errorBoxStyle.padding = new RectOffset(10, 10, 10, 10);
+                errorBoxStyle.wordWrap = true;
+                errorBoxStyle.clipping = TextClipping.Overflow;
+
+
+                float boxWidth = 400f;
+                float boxHeight = 60f;
+                float boxX = (Screen.width - boxWidth) / 2f;
+                float boxY = Screen.height - boxHeight - 20f;
+
+                GUI.Box(new Rect(boxX, boxY, boxWidth, boxHeight), Settings.Settings.errorMessage, errorBoxStyle);
+            }
+
             GUI.backgroundColor = Color.grey;
 
-            GUI.skin.button.normal.background = GUIHelper.MakeTex(2, 2, Color.black);
-            GUI.skin.button.normal.textColor = Color.white;
 
-            GUI.skin.button.hover.background = GUIHelper.MakeTex(2, 2, Color.green);
-            GUI.skin.button.hover.textColor = Color.black;
+            var buttonStyle = new GUIStyle(GUI.skin.button);
+            buttonStyle.normal.background = GUIHelper.MakeTex(2, 2, Color.black);
+            buttonStyle.normal.textColor = Color.white;
+            buttonStyle.border = new RectOffset(2, 2, 2, 2);
+            GUI.skin.button = buttonStyle;
 
-            GUI.skin.toggle.onNormal.textColor = Color.yellow;
+            var labelStyle = new GUIStyle(GUI.skin.label);
+            labelStyle.normal.textColor = Color.white;
+            labelStyle.border = new RectOffset(2, 2, 2, 2);
+            GUI.skin.label = labelStyle;
+
+
+            var textFieldStyle = new GUIStyle(GUI.skin.textField);
+            textFieldStyle.normal.textColor = Color.white;
+            textFieldStyle.border = new RectOffset(2, 2, 2, 2);
+            GUI.skin.textField = textFieldStyle;
+
+            var sliderStyle = new GUIStyle(GUI.skin.horizontalSlider);
+            sliderStyle.border = new RectOffset(2, 2, 2, 2);
+            GUI.skin.horizontalSlider = sliderStyle;
+
+            var toggleStyle = new GUIStyle(GUI.skin.toggle);
+            toggleStyle.normal.textColor = Color.white;
+            toggleStyle.border = new RectOffset(2, 2, 2, 2);
+            toggleStyle.onNormal.textColor = Color.yellow;
+            GUI.skin.toggle = toggleStyle;
 
             //from https://www.unknowncheats.me/forum/unity/437277-mono-internal-optimisation-tips.html
             if (UnityEngine.Event.current.type == EventType.Repaint)
@@ -399,6 +461,7 @@ namespace DevourClient
             {
                 windowRect = GUI.Window(0, windowRect, (GUI.WindowFunction)Tabs, "DevourClient");
             }
+
         }
 
         public static void Tabs(int windowID)
@@ -485,7 +548,7 @@ namespace DevourClient
             {
                 flashlight_colorpick = !flashlight_colorpick;
                 MelonLogger.Msg("Flashlight color picker : " + flashlight_colorpick.ToString());
-
+                Hacks.Misc.ShowMessageBox("Flashlight color picker : " + flashlight_colorpick.ToString());
             }
 
             if (flashlight_colorpick)
@@ -508,6 +571,7 @@ namespace DevourClient
             {
                 Hacks.Misc.TPItems();
                 MelonLogger.Msg("TP Items!");
+                Hacks.Misc.ShowMessageBox("TP Items!");
             }
 
             if (GUI.Button(new Rect(Settings.Settings.x + 10, Settings.Settings.y + 110, 130, 30), "Freeze azazel"))
@@ -639,6 +703,7 @@ namespace DevourClient
             {
                 Hacks.Misc.InstantWin();
                 MelonLogger.Msg("EZ Win");
+                Hacks.Misc.ShowMessageBox("EZ Win");
             }
 
             if (GUI.Button(new Rect(Settings.Settings.x + 10, Settings.Settings.y + 110, 150, 30), "Burn a ritual object"))
@@ -673,6 +738,7 @@ namespace DevourClient
                         catch
                         {
                             MelonLogger.Msg("Azazel not found !");
+                            Hacks.Misc.ShowMessageBox("Azazel not found !");
                         }
                     }
 
@@ -693,6 +759,7 @@ namespace DevourClient
                         catch
                         {
                             MelonLogger.Msg("Azazel not found !");
+                            Hacks.Misc.ShowMessageBox("Azazel not found !");
                         }
                     }
 
@@ -713,6 +780,7 @@ namespace DevourClient
                         catch
                         {
                             MelonLogger.Msg("Azazel not found !");
+                            Hacks.Misc.ShowMessageBox("Azazel not found !");
                         }
                     }
 
@@ -739,6 +807,7 @@ namespace DevourClient
                         catch
                         {
                             MelonLogger.Msg("Azazel not found !");
+                            Hacks.Misc.ShowMessageBox("Azazel not found !");
                         }
                     }
 
@@ -760,6 +829,7 @@ namespace DevourClient
                         catch
                         {
                             MelonLogger.Msg("Azazel not found !");
+                            Hacks.Misc.ShowMessageBox("Azazel not found !");
                         }
                     }
 
@@ -786,6 +856,7 @@ namespace DevourClient
                         catch
                         {
                             MelonLogger.Msg("Azazel not found !");
+                            Hacks.Misc.ShowMessageBox("Azazel not found !");
                         }
                     }
 
@@ -808,6 +879,7 @@ namespace DevourClient
                         if (realm == null)
                         {
                             MelonLogger.Warning("realm was null.");
+                            Hacks.Misc.ShowMessageBox("realm was null.");
                             return;
                         }
 
@@ -839,6 +911,7 @@ namespace DevourClient
                         if (realm == null)
                         {
                             MelonLogger.Warning("realm was null.");
+                            Hacks.Misc.ShowMessageBox("realm was null.");
                             return;
                         }
 
@@ -1469,6 +1542,7 @@ namespace DevourClient
                 AchievementsThread.Start();
 
                 MelonLogger.Msg("Achievements Unlocked!");
+                Hacks.Misc.ShowMessageBox("Achievements Unlocked!");
             }
 
             if (GUI.Button(new Rect(Settings.Settings.x + 10, Settings.Settings.y + 110, 150, 30), "Unlock Doors"))
@@ -1476,23 +1550,52 @@ namespace DevourClient
                 Hacks.Unlock.Doors();
 
                 MelonLogger.Msg("Doors Unlocked!");
+                Hacks.Misc.ShowMessageBox("Doors Unlocked!");
             }
 
             if (GUI.Button(new Rect(Settings.Settings.x + 10, Settings.Settings.y + 150, 150, 30), "TP Keys") && Player.IsInGame())
             {
                 Hacks.Misc.TPKeys();
                 MelonLogger.Msg("Here are your keys!");
+                Hacks.Misc.ShowMessageBox("Here are your keys!");
             }
 
             if (GUI.Button(new Rect(Settings.Settings.x + 10, Settings.Settings.y + 190, 150, 30), "Make Random Noise"))
             {
                 Hacks.Misc.PlaySound();
                 MelonLogger.Msg("Playing a random sound!");
+                Hacks.Misc.ShowMessageBox("Playing a random sound!");
             }
 
             spam_message = GUI.Toggle(new Rect(Settings.Settings.x + 10, Settings.Settings.y + 240, 140, 30), spam_message, "Chat spam");
+            if (spam_message)
+            {
+                spamMessageText = GUI.TextField(new Rect(Settings.Settings.x + 160, Settings.Settings.y + 240, 200, 30), spamMessageText);
+                GUI.Label(new Rect(Settings.Settings.x + 370, Settings.Settings.y + 240, 60, 30), "Send Interval(s):");
+                spamMessageInterval = GUI.HorizontalSlider(new Rect(Settings.Settings.x + 440, Settings.Settings.y + 240, 100, 30), spamMessageInterval, 1f, 30f);
+                GUI.Label(new Rect(Settings.Settings.x + 550, Settings.Settings.y + 240, 60, 30), ((int)spamMessageInterval).ToString());
+            }
+
             change_steam_name = GUI.Toggle(new Rect(Settings.Settings.x + 10, Settings.Settings.y + 270, 140, 30), change_steam_name, "Change Steam Name");
+            if (change_steam_name)
+            {
+                steamNameText = GUI.TextField(new Rect(Settings.Settings.x + 160, Settings.Settings.y + 270, 200, 30), steamNameText);
+                if (GUI.Button(new Rect(Settings.Settings.x + 370, Settings.Settings.y + 270, 60, 30), "Apply"))
+                {
+                    Hacks.Misc.SetSteamName(steamNameText);
+                }
+            }
+
             change_server_name = GUI.Toggle(new Rect(Settings.Settings.x + 10, Settings.Settings.y + 300, 140, 30), change_server_name, "Change Server Name");
+            if (change_server_name)
+            {
+                serverNameText = GUI.TextField(new Rect(Settings.Settings.x + 160, Settings.Settings.y + 300, 200, 30), serverNameText);
+                if (GUI.Button(new Rect(Settings.Settings.x + 370, Settings.Settings.y + 300, 60, 30), "Apply"))
+                {
+                    Hacks.Misc.SetServerName(serverNameText);
+                }
+            }
+
             _walkInLobby = GUI.Toggle(new Rect(Settings.Settings.x + 10, Settings.Settings.y + 330, 140, 30), _walkInLobby, "Walk In Lobby");
             _IsAutoRespawn = GUI.Toggle(new Rect(Settings.Settings.x + 10, Settings.Settings.y + 360, 140, 30), _IsAutoRespawn, "Auto Respawn");
 
@@ -1512,7 +1615,7 @@ namespace DevourClient
 
 
             exp_modifier = GUI.Toggle(new Rect(Settings.Settings.x + 10, Settings.Settings.y + 540, 150, 20), exp_modifier, "EXP Modifier");
-            exp = GUI.HorizontalSlider(new Rect(Settings.Settings.x + 10, Settings.Settings.y + 570, 100, 10), exp, 1000f, 3000f);
+            exp = GUI.HorizontalSlider(new Rect(Settings.Settings.x + 10, Settings.Settings.y + 570, 100, 10), exp, 1000f, 6000f);
             GUI.Label(new Rect(Settings.Settings.x + 120, Settings.Settings.y + 565, 100, 30), ((int)exp).ToString());
 
 
@@ -1527,8 +1630,10 @@ namespace DevourClient
             if (GUI.Button(new Rect(Settings.Settings.x + 285, Settings.Settings.y + 110, 150, 30), "Create server"))
             {
                 MelonLogger.Msg("Creating the server...");
+                Hacks.Misc.ShowMessageBox("Creating the server...");
                 Hacks.Misc.CreateCustomizedLobby((int)lobbySize);
                 MelonLogger.Msg("Done !");
+                Hacks.Misc.ShowMessageBox("Done !");
             }
         }
 
@@ -1543,6 +1648,7 @@ namespace DevourClient
                     if (bp == null || bp.Name == "")
                     {
                         MelonLogger.Warning("players is null");
+                        Hacks.Misc.ShowMessageBox("players is null");
                         continue;
                     }
 
@@ -1597,3 +1703,4 @@ namespace DevourClient
 
     }
 }
+
