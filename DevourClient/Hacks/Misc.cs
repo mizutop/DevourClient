@@ -91,11 +91,12 @@ namespace DevourClient.Hacks
 
                     if (burnAll)
                     {
-                        _slaughterhouseAltarController.BurnGoat();
+						_slaughterhouseAltarController.SkipToGoat(10);
                     }
                     else
                     {
-                        _slaughterhouseAltarController.SkipToGoat(10);
+						_slaughterhouseAltarController.BurnGoat();
+
                     }
 					break;
 
@@ -162,11 +163,13 @@ namespace DevourClient.Hacks
 					else
 					{
 						MelonLogger.Error("azazelBehaviour is null!");
+						Hacks.Misc.ShowMessageBox("azazelBehaviour is null!");
 					}
                 }
 				else
 				{
                     MelonLogger.Error("azazel is null!");
+                    Hacks.Misc.ShowMessageBox("azazel is null!");
                 }
             }
 		}
@@ -473,13 +476,11 @@ namespace DevourClient.Hacks
 
         public static int ShowMessageBox(string message)
         {
-			//not used, might be useful, some day
-			Il2CppHorror.Menu menu = UnityEngine.Object.FindObjectOfType<Il2CppHorror.Menu>();
-			if (menu == null)
-				return 1;
-			menu.ShowMessageModal(message);
-			return 0;
-		}
+            Settings.Settings.errorMessage = message;
+            Settings.Settings.errorMessageDisplayTime = 0f;
+            Settings.Settings.showErrorMessage = true;
+            return 0;
+        }
 		
 		public static void PlaySound()
         {
