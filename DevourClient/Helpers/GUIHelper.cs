@@ -1,57 +1,143 @@
 ﻿using UnityEngine;
+using MelonLoader;
+using System.Collections.Generic;
 
 namespace DevourClient.Helpers
 {
-    class GUIHelper
+    public static class GUIHelper  // 改为静态类
     {
+        private static Texture2D previewTexture;
+        private static GUIStyle boxStyle;
+        
+        private static Dictionary<Color, Texture2D> colorTextureCache = new Dictionary<Color, Texture2D>();
+        private static Dictionary<int, Texture2D> circularTextureCache = new Dictionary<int, Texture2D>();
+        
+        // 初始化方法
+        public static void Initialize()
+        {
+            if (previewTexture == null)
+            {
+                previewTexture = new Texture2D(1, 1);
+                boxStyle = new GUIStyle(GUI.skin.box);
+            }
+        }
+
+        // 清理方法
+        public static void Cleanup()
+        {
+            if (previewTexture != null)
+            {
+                UnityEngine.Object.Destroy(previewTexture);
+                previewTexture = null;
+            }
+
+            foreach (var texture in colorTextureCache.Values)
+            {
+                if (texture != null)
+                {
+                    UnityEngine.Object.Destroy(texture);
+                }
+            }
+            colorTextureCache.Clear();
+
+            foreach (var texture in circularTextureCache.Values)
+            {
+                if (texture != null)
+                {
+                    UnityEngine.Object.Destroy(texture);
+                }
+            }
+            circularTextureCache.Clear();
+        }
+
         private static float R;
         private static float G;
         private static float B;
 
         public static Color ColorPick(string title, Color color)
         {
-            GUI.Label(new Rect(Settings.Settings.x + 195, Settings.Settings.y + 70, 250, 30), title);
+            Initialize();  // 确保已初始化
 
-            R = GUI.VerticalSlider(new Rect(Settings.Settings.x + 240, Settings.Settings.y + 100, 30, 90), color.r, 0f, 1f);
-            G = GUI.VerticalSlider(new Rect(Settings.Settings.x + 270, Settings.Settings.y + 100, 30, 90), color.g, 0f, 1f);
-            B = GUI.VerticalSlider(new Rect(Settings.Settings.x + 300, Settings.Settings.y + 100, 30, 90), color.b, 0f, 1f);
-
-            GUI.Label(new Rect(Settings.Settings.x + 240, Settings.Settings.y + 190, 30, 30), "R");
-            GUI.Label(new Rect(Settings.Settings.x + 270, Settings.Settings.y + 190, 30, 30), "G");
-            GUI.Label(new Rect(Settings.Settings.x + 300, Settings.Settings.y + 190, 30, 30), "B");
+            // 使用 GUILayout 来创建更可靠的滑动条
+            GUILayout.BeginArea(new Rect(Settings.Settings.x + 195, Settings.Settings.y + 70, 250, 250));
             
-            color = new Color(R, G, B, 1);
+            GUILayout.Label(title);
+            GUILayout.Space(10);
 
-            void DrawPreview(Rect position, Color color_to_draw)
+            // R 通道
+            GUILayout.BeginHorizontal();
+            GUILayout.Label("R", GUILayout.Width(20));
+            R = GUILayout.HorizontalSlider(color.r, 0f, 1f, GUILayout.Width(150));
+            GUILayout.Label(((int)(R * 255)).ToString(), GUILayout.Width(30));
+            GUILayout.EndHorizontal();
+
+            // G 通道
+            GUILayout.BeginHorizontal();
+            GUILayout.Label("G", GUILayout.Width(20));
+            G = GUILayout.HorizontalSlider(color.g, 0f, 1f, GUILayout.Width(150));
+            GUILayout.Label(((int)(G * 255)).ToString(), GUILayout.Width(30));
+            GUILayout.EndHorizontal();
+
+            // B 通道
+            GUILayout.BeginHorizontal();
+            GUILayout.Label("B", GUILayout.Width(20));
+            B = GUILayout.HorizontalSlider(color.b, 0f, 1f, GUILayout.Width(150));
+            GUILayout.Label(((int)(B * 255)).ToString(), GUILayout.Width(30));
+            GUILayout.EndHorizontal();
+
+            GUILayout.Space(10);
+
+            // 颜色预览
+            void DrawPreview(Color color_to_draw)
             {
-                Texture2D texture = new Texture2D(1, 1);
-                texture.SetPixel(0, 0, color_to_draw);
-                texture.Apply();
-                GUIStyle boxStyle = new GUIStyle(GUI.skin.box);
-                boxStyle.normal.background = texture;
-                GUI.Box(position, GUIContent.none, boxStyle);
+                if (previewTexture == null)
+                {
+                    previewTexture = new Texture2D(1, 1);
+                }
+                
+                previewTexture.SetPixel(0, 0, color_to_draw);
+                previewTexture.Apply();
+                boxStyle.normal.background = previewTexture;
+                GUILayout.Box(GUIContent.none, boxStyle, GUILayout.Height(30));
             }
 
-            DrawPreview(new Rect(Settings.Settings.x + 195, Settings.Settings.y + 100, 20, 90), color);
+            DrawPreview(new Color(R, G, B, 1));
+            
+            GUILayout.EndArea();
 
-            return color;
+            return new Color(R, G, B, 1);
         }
         
         public static Texture2D MakeTex(int width, int height, Color col)
         {
+            string cacheKey = $"{width}x{height}_{col.r}_{col.g}_{col.b}";
+            
+            if (colorTextureCache.TryGetValue(col, out Texture2D cachedTexture))
+            {
+                return cachedTexture;
+            }
+
+            Texture2D result = new Texture2D(width, height);
             Color[] pix = new Color[width * height];
             for (int i = 0; i < pix.Length; ++i)
             {
                 pix[i] = col;
             }
-            Texture2D result = new Texture2D(width, height);
             result.SetPixels(pix);
             result.Apply();
+            
+            colorTextureCache[col] = result;
             return result;
         }
         
         public static Texture2D GetCircularTexture(int width, int height)
         {
+            int size = Mathf.Max(width, height);
+            if (circularTextureCache.TryGetValue(size, out Texture2D cachedTexture))
+            {
+                return cachedTexture;
+            }
+
             Texture2D texture = new Texture2D(width, height);
             for (int x = 0; x < texture.width; x++)
             {
@@ -69,7 +155,8 @@ namespace DevourClient.Helpers
             }
 
             texture.Apply();
-
+            
+            circularTextureCache[size] = texture;
             return texture;
         }
     }

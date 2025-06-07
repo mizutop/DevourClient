@@ -48,6 +48,7 @@ namespace DevourClient.Helpers
             if (!BoltNetwork.IsServer)
             {
                 MelonLogger.Msg("You need to be server !");
+                Hacks.Misc.ShowMessageBox("You need to be server !");
                 return;
             }
 
@@ -64,6 +65,9 @@ namespace DevourClient.Helpers
             }
 
             sab.OnPickedUpPlayer(sab.gameObject, p_GameObject, false);
+
+            MelonLogger.Msg(Name);
+            Hacks.Misc.ShowMessageBox(Name);
 
             /*
             MelonLogger.Msg(Name);
@@ -110,6 +114,7 @@ namespace DevourClient.Helpers
             else
             {
                 MelonLogger.Error("Azazel not found!");
+                Hacks.Misc.ShowMessageBox("Azazel not found!");
                 return;
             }
         }
@@ -119,6 +124,7 @@ namespace DevourClient.Helpers
             if (!BoltNetwork.IsServer)
             {
                 MelonLogger.Msg("You need to be server !");
+                Hacks.Misc.ShowMessageBox("You need to be server !");
                 return;
             }
 
@@ -174,6 +180,9 @@ namespace DevourClient.Helpers
 
     public class Entities
     {
+        private static bool isRunning = true;  // Control coroutine running state
+        private static List<object> activeCoroutines = new List<object>();  // Track active coroutines
+
         public static int MAX_PLAYERS = 4; //will change by calling CreateCustomizedLobby
 
         public static BasePlayer LocalPlayer_ = new BasePlayer();
@@ -190,183 +199,377 @@ namespace DevourClient.Helpers
         public static Il2Cpp.CrowBehaviour[] Crows = default!;
         public static Il2Cpp.ManorLumpController[] Lumps = default!;
 
-        public static IEnumerator GetLocalPlayer()
+        // Method to stop all coroutines
+        public static void StopAllCoroutines()
         {
-            while (true)
+            isRunning = false;
+            foreach (var coroutine in activeCoroutines)
             {
-                GameObject[] currentPlayers = GameObject.FindGameObjectsWithTag("Player");
-
-                for (int i = 0; i < currentPlayers.Length; i++)
+                if (coroutine != null)
                 {
-                    if (currentPlayers[i].GetComponent<Il2Cpp.NolanBehaviour>().entity.IsOwner)
+                    MelonCoroutines.Stop(coroutine);
+                }
+            }
+            activeCoroutines.Clear();
+            
+            // Clean up all cached objects
+            CleanupCachedObjects();
+        }
+
+        // Clean up cached objects
+        private static void CleanupCachedObjects()
+        {
+            if (Players != null)
+            {
+                foreach (var player in Players)
+                {
+                    if (player != null)
                     {
-                        LocalPlayer_.p_GameObject = currentPlayers[i];
-                        break;
+                        player.p_GameObject = null;
                     }
                 }
+                Players = null;
+            }
 
-                // Wait 5 seconds before caching objects again.
+            LocalPlayer_.p_GameObject = null;
+            GoatsAndRats = null;
+            SurvivalInteractables = null;
+            Keys = null;
+            Demons = null;
+            Spiders = null;
+            Ghosts = null;
+            Azazels = null;
+            Boars = null;
+            Corpses = null;
+            Crows = null;
+            Lumps = null;
+        }
+
+        // Method to start all coroutines
+        public static void StartAllCoroutines()
+        {
+            isRunning = true;
+            activeCoroutines.Clear();
+            
+            // Start all coroutines and save references
+            activeCoroutines.Add(MelonCoroutines.Start(GetLocalPlayer()));
+            activeCoroutines.Add(MelonCoroutines.Start(GetAllPlayers()));
+            activeCoroutines.Add(MelonCoroutines.Start(GetGoatsAndRats()));
+            activeCoroutines.Add(MelonCoroutines.Start(GetSurvivalInteractables()));
+            activeCoroutines.Add(MelonCoroutines.Start(GetKeys()));
+            activeCoroutines.Add(MelonCoroutines.Start(GetDemons()));
+            activeCoroutines.Add(MelonCoroutines.Start(GetSpiders()));
+            activeCoroutines.Add(MelonCoroutines.Start(GetGhosts()));
+            activeCoroutines.Add(MelonCoroutines.Start(GetBoars()));
+            activeCoroutines.Add(MelonCoroutines.Start(GetCorpses()));
+            activeCoroutines.Add(MelonCoroutines.Start(GetCrows()));
+            activeCoroutines.Add(MelonCoroutines.Start(GetLumps()));
+            activeCoroutines.Add(MelonCoroutines.Start(GetAzazels()));
+        }
+
+        public static IEnumerator GetLocalPlayer()
+        {
+            while (isRunning)
+            {
+                try
+                {
+                    GameObject[] currentPlayers = GameObject.FindGameObjectsWithTag("Player");
+                    if (currentPlayers != null)
+                    {
+                        for (int i = 0; i < currentPlayers.Length; i++)
+                        {
+                            if (currentPlayers[i].GetComponent<Il2Cpp.NolanBehaviour>().entity.IsOwner)
+                            {
+                                // Clean up old references before updating
+                                if (LocalPlayer_.p_GameObject != currentPlayers[i])
+                                {
+                                    LocalPlayer_.p_GameObject = currentPlayers[i];
+                                }
+                                break;
+                            }
+                        }
+                    }
+                }
+                catch (System.Exception e)
+                {
+                    string err = $"GetLocalPlayer coroutine encountered an error: {e.Message}";
+                    MelonLogger.Error(err);
+                    DevourClient.Settings.Settings.errorMessage = err;
+                    DevourClient.Settings.Settings.showErrorMessage = true;
+                }
+
                 yield return new WaitForSeconds(5f);
             }
         }
 
         public static IEnumerator GetAllPlayers()
         {
-            while (true)
+            while (isRunning)
             {
-                GameObject[] players = GameObject.FindGameObjectsWithTag("Player");
-                Players = new BasePlayer[players.Length];
-
-                int i = 0;
-                foreach (GameObject p in players)
+                try
                 {
-                    string player_name = "";
-                    string player_id = "-1";
-
-                    Il2Cpp.DissonancePlayerTracking dpt = p.gameObject.GetComponent<Il2Cpp.DissonancePlayerTracking>();
-                    if (dpt != null)
+                    GameObject[] players = GameObject.FindGameObjectsWithTag("Player");
+                    
+                    // Clean up old array before creating new one
+                    if (Players != null)
                     {
-                        player_name = dpt.state.PlayerName;
-                        player_id = dpt.state.PlayerId;
+                        foreach (var player in Players)
+                        {
+                            if (player != null)
+                            {
+                                player.p_GameObject = null;
+                            }
+                        }
                     }
 
-                    if (Players[i] == null)
+                    // Create new array
+                    Players = new BasePlayer[players.Length];
+                    
+                    for (int i = 0; i < players.Length; i++)
                     {
-                        Players[i] = new BasePlayer();
+                        if (Players[i] == null)
+                        {
+                            Players[i] = new BasePlayer();
+                        }
+
+                        Players[i].p_GameObject = players[i];
+                        
+                        Il2Cpp.DissonancePlayerTracking dpt = players[i].GetComponent<Il2Cpp.DissonancePlayerTracking>();
+                        if (dpt != null)
+                        {
+                            Players[i].Name = dpt.state.PlayerName;
+                            Players[i].Id = dpt.state.PlayerId;
+                        }
                     }
-
-                    Players[i].Id = player_id;
-                    Players[i].Name = player_name;
-                    Players[i].p_GameObject = p;
-
-                    i++;
+                }
+                catch (System.Exception e)
+                {
+                    string err = $"GetAllPlayers coroutine encountered an error: {e.Message}";
+                    MelonLogger.Error(err);
+                    DevourClient.Settings.Settings.errorMessage = err;
+                    DevourClient.Settings.Settings.showErrorMessage = true;
                 }
 
-
-                // Wait 5 seconds before caching objects again.
                 yield return new WaitForSeconds(5f);
             }
         }
+
         public static IEnumerator GetGoatsAndRats()
         {
-            while (true)
+            while (isRunning)
             {
-                GoatsAndRats = Il2Cpp.GoatBehaviour.FindObjectsOfType<Il2Cpp.GoatBehaviour>();
+                try
+                {
+                    GoatsAndRats = Il2Cpp.GoatBehaviour.FindObjectsOfType<Il2Cpp.GoatBehaviour>();
+                }
+                catch (System.Exception e)
+                {
+                    string err = $"GetGoatsAndRats coroutine encountered an error: {e.Message}";
+                    MelonLogger.Error(err);
+                    DevourClient.Settings.Settings.errorMessage = err;
+                    DevourClient.Settings.Settings.showErrorMessage = true;
+                }
 
-                // Wait 5 seconds before caching objects again.
                 yield return new WaitForSeconds(5f);
             }
         }
 
         public static IEnumerator GetSurvivalInteractables()
         {
-            while (true)
+            while (isRunning)
             {
-                SurvivalInteractables = Il2Cpp.SurvivalInteractable.FindObjectsOfType<Il2Cpp.SurvivalInteractable>();
+                try
+                {
+                    SurvivalInteractables = Il2Cpp.SurvivalInteractable.FindObjectsOfType<Il2Cpp.SurvivalInteractable>();
+                }
+                catch (System.Exception e)
+                {
+                    string err = $"GetSurvivalInteractables coroutine encountered an error: {e.Message}";
+                    MelonLogger.Error(err);
+                    DevourClient.Settings.Settings.errorMessage = err;
+                    DevourClient.Settings.Settings.showErrorMessage = true;
+                }
 
-                // Wait 5 seconds before caching objects again.
                 yield return new WaitForSeconds(5f);
             }
         }
 
         public static IEnumerator GetKeys()
         {
-            while (true)
+            while (isRunning)
             {
-                Keys = Il2Cpp.KeyBehaviour.FindObjectsOfType<Il2Cpp.KeyBehaviour>();
+                try
+                {
+                    Keys = Il2Cpp.KeyBehaviour.FindObjectsOfType<Il2Cpp.KeyBehaviour>();
+                }
+                catch (System.Exception e)
+                {
+                    string err = $"GetKeys coroutine encountered an error: {e.Message}";
+                    MelonLogger.Error(err);
+                    DevourClient.Settings.Settings.errorMessage = err;
+                    DevourClient.Settings.Settings.showErrorMessage = true;
+                }
 
-                // Wait 5 seconds before caching objects again.
                 yield return new WaitForSeconds(5f);
             }
         }
 
         public static IEnumerator GetDemons()
         {
-            while (true)
+            while (isRunning)
             {
-                Demons = Il2Cpp.SurvivalDemonBehaviour.FindObjectsOfType<Il2Cpp.SurvivalDemonBehaviour>();
+                try
+                {
+                    Demons = Il2Cpp.SurvivalDemonBehaviour.FindObjectsOfType<Il2Cpp.SurvivalDemonBehaviour>();
+                }
+                catch (System.Exception e)
+                {
+                    string err = $"GetDemons coroutine encountered an error: {e.Message}";
+                    MelonLogger.Error(err);
+                    DevourClient.Settings.Settings.errorMessage = err;
+                    DevourClient.Settings.Settings.showErrorMessage = true;
+                }
 
-                // Wait 5 seconds before caching objects again.
                 yield return new WaitForSeconds(5f);
             }
         }
 
         public static IEnumerator GetSpiders()
         {
-            while (true)
+            while (isRunning)
             {
-                Spiders = Il2Cpp.SpiderBehaviour.FindObjectsOfType<Il2Cpp.SpiderBehaviour>();
+                try
+                {
+                    Spiders = Il2Cpp.SpiderBehaviour.FindObjectsOfType<Il2Cpp.SpiderBehaviour>();
+                }
+                catch (System.Exception e)
+                {
+                    string err = $"GetSpiders coroutine encountered an error: {e.Message}";
+                    MelonLogger.Error(err);
+                    DevourClient.Settings.Settings.errorMessage = err;
+                    DevourClient.Settings.Settings.showErrorMessage = true;
+                }
 
-                // Wait 5 seconds before caching objects again.
                 yield return new WaitForSeconds(5f);
             }
         }
 
         public static IEnumerator GetGhosts()
         {
-            while (true)
+            while (isRunning)
             {
-                Ghosts = Il2Cpp.GhostBehaviour.FindObjectsOfType<Il2Cpp.GhostBehaviour>();
+                try
+                {
+                    Ghosts = Il2Cpp.GhostBehaviour.FindObjectsOfType<Il2Cpp.GhostBehaviour>();
+                }
+                catch (System.Exception e)
+                {
+                    string err = $"GetGhosts coroutine encountered an error: {e.Message}";
+                    MelonLogger.Error(err);
+                    DevourClient.Settings.Settings.errorMessage = err;
+                    DevourClient.Settings.Settings.showErrorMessage = true;
+                }
 
-                // Wait 5 seconds before caching objects again.
                 yield return new WaitForSeconds(5f);
             }
         }
 
         public static IEnumerator GetBoars()
         {
-            while (true)
+            while (isRunning)
             {
-                Boars = Il2Cpp.BoarBehaviour.FindObjectsOfType<Il2Cpp.BoarBehaviour>();
+                try
+                {
+                    Boars = Il2Cpp.BoarBehaviour.FindObjectsOfType<Il2Cpp.BoarBehaviour>();
+                }
+                catch (System.Exception e)
+                {
+                    string err = $"GetBoars coroutine encountered an error: {e.Message}";
+                    MelonLogger.Error(err);
+                    DevourClient.Settings.Settings.errorMessage = err;
+                    DevourClient.Settings.Settings.showErrorMessage = true;
+                }
 
-                // Wait 5 seconds before caching objects again.
                 yield return new WaitForSeconds(5f);
             }
         }
 
         public static IEnumerator GetCorpses()
         {
-            while (true)
+            while (isRunning)
             {
-                Corpses = Il2Cpp.CorpseBehaviour.FindObjectsOfType<Il2Cpp.CorpseBehaviour>();
+                try
+                {
+                    Corpses = Il2Cpp.CorpseBehaviour.FindObjectsOfType<Il2Cpp.CorpseBehaviour>();
+                }
+                catch (System.Exception e)
+                {
+                    string err = $"GetCorpses coroutine encountered an error: {e.Message}";
+                    MelonLogger.Error(err);
+                    DevourClient.Settings.Settings.errorMessage = err;
+                    DevourClient.Settings.Settings.showErrorMessage = true;
+                }
 
-                // Wait 5 seconds before caching objects again.
                 yield return new WaitForSeconds(5f);
             }
         }
 
         public static IEnumerator GetCrows()
         {
-            while (true)
+            while (isRunning)
             {
-                Crows = Il2Cpp.CrowBehaviour.FindObjectsOfType<Il2Cpp.CrowBehaviour>();
+                try
+                {
+                    Crows = Il2Cpp.CrowBehaviour.FindObjectsOfType<Il2Cpp.CrowBehaviour>();
+                }
+                catch (System.Exception e)
+                {
+                    string err = $"GetCrows coroutine encountered an error: {e.Message}";
+                    MelonLogger.Error(err);
+                    DevourClient.Settings.Settings.errorMessage = err;
+                    DevourClient.Settings.Settings.showErrorMessage = true;
+                }
 
-                // Wait 5 seconds before caching objects again.
                 yield return new WaitForSeconds(5f);
             }
         }
 
         public static IEnumerator GetLumps()
         {
-            while (true)
+            while (isRunning)
             {
-                Lumps = Il2Cpp.ManorLumpController.FindObjectsOfType<Il2Cpp.ManorLumpController>();
+                try
+                {
+                    Lumps = Il2Cpp.ManorLumpController.FindObjectsOfType<Il2Cpp.ManorLumpController>();
+                }
+                catch (System.Exception e)
+                {
+                    string err = $"GetLumps coroutine encountered an error: {e.Message}";
+                    MelonLogger.Error(err);
+                    DevourClient.Settings.Settings.errorMessage = err;
+                    DevourClient.Settings.Settings.showErrorMessage = true;
+                }
 
-                // Wait 5 seconds before caching objects again.
                 yield return new WaitForSeconds(5f);
             }
         }
 
         public static IEnumerator GetAzazels()
         {
-            /*
-             * ikr AzazelS, because in case we spawn multiple we want the esp to render all of them
-            */
-            while (true)
+            while (isRunning)
             {
-                Azazels = Il2Cpp.SurvivalAzazelBehaviour.FindObjectsOfType<Il2Cpp.SurvivalAzazelBehaviour>();
+                try
+                {
+                    Azazels = Il2Cpp.SurvivalAzazelBehaviour.FindObjectsOfType<Il2Cpp.SurvivalAzazelBehaviour>();
+                }
+                catch (System.Exception e)
+                {
+                    string err = $"Error in GetAzazels coroutine: {e.Message}";
+                    MelonLogger.Error(err);
+                    DevourClient.Settings.Settings.errorMessage = err;
+                    DevourClient.Settings.Settings.showErrorMessage = true;
+                }
 
-                // Wait 5 seconds before caching objects again.
                 yield return new WaitForSeconds(5f);
             }
         }
