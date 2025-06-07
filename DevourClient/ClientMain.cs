@@ -1,4 +1,4 @@
-using DevourClient.Helpers;
+﻿using DevourClient.Helpers;
 using MelonLoader;
 using System.Threading.Tasks;
 using Il2CppPhoton.Bolt;
@@ -83,13 +83,16 @@ namespace DevourClient
 
             crosshairTexture = Helpers.GUIHelper.GetCircularTexture(5, 5);
 
+            // Start all coroutines using new coroutine management mechanism
             Helpers.Entities.StartAllCoroutines();
         }
 
         public void OnDestroy()
         {
+            // Stop all coroutines when component is destroyed
             Helpers.Entities.StopAllCoroutines();
             
+            // Clean up other resources
             if (crosshairTexture != null)
             {
                 UnityEngine.Object.Destroy(crosshairTexture);
@@ -99,6 +102,7 @@ namespace DevourClient
 
         public void OnApplicationQuit()
         {
+            // Stop all coroutines when application quits
             Helpers.Entities.StopAllCoroutines();
         }
 
@@ -255,9 +259,10 @@ namespace DevourClient
                 }
             }
 
-
+            // Render error message box
             if (Settings.Settings.showErrorMessage)
             {
+                // Set message box style
                 GUIStyle errorBoxStyle = new GUIStyle(GUI.skin.box);
                 errorBoxStyle.normal.background = GUIHelper.MakeTex(2, 2, new Color(0.8f, 0.2f, 0.2f, 0.9f));
                 errorBoxStyle.normal.textColor = Color.white;
@@ -266,39 +271,43 @@ namespace DevourClient
                 errorBoxStyle.wordWrap = true;
                 errorBoxStyle.clipping = TextClipping.Overflow;
 
-
+                // Calculate message box position (bottom center)
                 float boxWidth = 400f;
                 float boxHeight = 60f;
                 float boxX = (Screen.width - boxWidth) / 2f;
                 float boxY = Screen.height - boxHeight - 20f;
 
+                // Draw message box
                 GUI.Box(new Rect(boxX, boxY, boxWidth, boxHeight), Settings.Settings.errorMessage, errorBoxStyle);
             }
 
             GUI.backgroundColor = Color.grey;
 
-
+            // Set button style
             var buttonStyle = new GUIStyle(GUI.skin.button);
             buttonStyle.normal.background = GUIHelper.MakeTex(2, 2, Color.black);
             buttonStyle.normal.textColor = Color.white;
             buttonStyle.border = new RectOffset(2, 2, 2, 2);
             GUI.skin.button = buttonStyle;
 
+            // Set label style
             var labelStyle = new GUIStyle(GUI.skin.label);
             labelStyle.normal.textColor = Color.white;
             labelStyle.border = new RectOffset(2, 2, 2, 2);
             GUI.skin.label = labelStyle;
 
-
+            // Set text field style
             var textFieldStyle = new GUIStyle(GUI.skin.textField);
             textFieldStyle.normal.textColor = Color.white;
             textFieldStyle.border = new RectOffset(2, 2, 2, 2);
             GUI.skin.textField = textFieldStyle;
 
+            // Set slider style
             var sliderStyle = new GUIStyle(GUI.skin.horizontalSlider);
             sliderStyle.border = new RectOffset(2, 2, 2, 2);
             GUI.skin.horizontalSlider = sliderStyle;
 
+            // Set toggle style
             var toggleStyle = new GUIStyle(GUI.skin.toggle);
             toggleStyle.normal.textColor = Color.white;
             toggleStyle.border = new RectOffset(2, 2, 2, 2);
@@ -1703,4 +1712,3 @@ namespace DevourClient
 
     }
 }
-
