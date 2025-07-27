@@ -70,7 +70,7 @@ In order to get all of this working you need to generate the DevourClient.dll fi
 2. Put the DevourClient.dll file located in `DevourClient\bin\Release\net6.0` inside `C:\Program Files (x86)\Steam\steamapps\common\Devour\Mods` folder.
 3. Start the game, now you have successfully installed DevourClient. Use INSERT to open the menu
 
-## Chinese Installation Tutorial
+## 中文安装指南
 如果你只是想要安装这个插件，直接在游戏里使用的话
 
 1、安装 .net 6 的运行环境 → (https://dotnet.microsoft.com/en-us/download/dotnet/6.0)
