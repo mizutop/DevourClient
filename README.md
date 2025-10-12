@@ -82,6 +82,8 @@ In order to get all of this working you need to generate the DevourClient.dll fi
 
 4、运行devour → 如果安装成功，你会看到一个windows窗口进行各类安装提示后，自动进入游戏。点击insert键即可打开和关闭devourclient窗口
 
+ps:有些电脑在安装melonloader之后，会出现fatal error的提示，这个我目前并没有碰到过。但是出现这个提示的主要原因，基本是melonloader安装过程中，提取到devour根目录的melonloader文件夹里的文件出现了问题，比较简单的解决办法就是（1）在别人的同系统同位宽（x86，x32）的电脑里拷贝出来他的melonloader文件夹，然后直接粘贴到自己的电脑里。（2）将melonloader文件夹完全删除，然后重装。
+
 如果你想要对代码进行修改和开发，请按照下面的”building from source“的步骤，逐步进行
 
 
@@ -157,3 +159,4 @@ Open an [issue](https://github.com/ALittlePatate/DevourClient/issues/new) or mak
 ## License
 
 [GPL 3.0](https://www.gnu.org/licenses/gpl-3.0.md)
+
