@@ -12,14 +12,32 @@ namespace DevourClient.Render
 	{
 		public static GUIStyle StringStyle { get; set; } = new GUIStyle(GUI.skin.label);
 
+		private static GUIContent cachedContent = new GUIContent();
+		private static Dictionary<string, Vector2> sizeCache = new Dictionary<string, Vector2>();
+		private static int frameCacheClearCounter = 0;
+		private const int CACHE_CLEAR_INTERVAL = 1800;
+
 		public static void DrawString(Vector2 position, Color color, string label, bool centered = true)
 		{
-			var content = new GUIContent(label);
-			var size = StringStyle.CalcSize(content);
+			cachedContent.text = label;
+
+			if (!sizeCache.TryGetValue(label, out Vector2 size))
+			{
+				size = StringStyle.CalcSize(cachedContent);
+				sizeCache[label] = size;
+
+				frameCacheClearCounter++;
+				if (frameCacheClearCounter >= CACHE_CLEAR_INTERVAL)
+				{
+					sizeCache.Clear();
+					frameCacheClearCounter = 0;
+				}
+			}
+
 			var upperLeft = centered ? position - size / 2f : position;
 			Color color2 = GUI.color;
 			GUI.color = color;
-			GUI.Label(new Rect(upperLeft, size), content);
+			GUI.Label(new Rect(upperLeft, size), cachedContent);
 			GUI.color = color2;
 		}
 
@@ -63,7 +81,7 @@ namespace DevourClient.Render
 		}
 		public static void DrawBones(Transform bone1, Transform bone2, Color c)
 		{
-			if (!Camera.main) //fix the crash maybe
+			if (!Camera.main)
             {
 				return;
             }

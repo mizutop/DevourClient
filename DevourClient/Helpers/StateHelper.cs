@@ -40,7 +40,8 @@ namespace DevourClient.Helpers
             Il2Cpp.NolanBehaviour nb = p_GameObject.GetComponent<Il2Cpp.NolanBehaviour>();
             Il2Cpp.SurvivalReviveInteractable _reviveInteractable = UnityEngine.Object.FindObjectOfType<Il2Cpp.SurvivalReviveInteractable>();
 
-            _reviveInteractable.Interact(nb.gameObject);
+            if (_reviveInteractable.CanInteract(nb.gameObject) == true) { _reviveInteractable.Interact(nb.gameObject); }
+
         }
 
         public void Jumpscare()
@@ -189,10 +190,15 @@ namespace DevourClient.Helpers
         public static Il2Cpp.CorpseBehaviour[] Corpses = default!;
         public static Il2Cpp.CrowBehaviour[] Crows = default!;
         public static Il2Cpp.ManorLumpController[] Lumps = default!;
+        public static Il2Cpp.MonkeyBehaviour[] Monkeys = default!;
+
+        // 协程生命周期管理
+        private static List<object> activeCoroutines = new List<object>();
+        private static bool isRunning = false;
 
         public static IEnumerator GetLocalPlayer()
         {
-            while (true)
+            while (isRunning)
             {
                 GameObject[] currentPlayers = GameObject.FindGameObjectsWithTag("Player");
 
@@ -212,7 +218,7 @@ namespace DevourClient.Helpers
 
         public static IEnumerator GetAllPlayers()
         {
-            while (true)
+            while (isRunning)
             {
                 GameObject[] players = GameObject.FindGameObjectsWithTag("Player");
                 Players = new BasePlayer[players.Length];
@@ -249,7 +255,7 @@ namespace DevourClient.Helpers
         }
         public static IEnumerator GetGoatsAndRats()
         {
-            while (true)
+            while (isRunning)
             {
                 GoatsAndRats = Il2Cpp.GoatBehaviour.FindObjectsOfType<Il2Cpp.GoatBehaviour>();
 
@@ -260,7 +266,7 @@ namespace DevourClient.Helpers
 
         public static IEnumerator GetSurvivalInteractables()
         {
-            while (true)
+            while (isRunning)
             {
                 SurvivalInteractables = Il2Cpp.SurvivalInteractable.FindObjectsOfType<Il2Cpp.SurvivalInteractable>();
 
@@ -271,7 +277,7 @@ namespace DevourClient.Helpers
 
         public static IEnumerator GetKeys()
         {
-            while (true)
+            while (isRunning)
             {
                 Keys = Il2Cpp.KeyBehaviour.FindObjectsOfType<Il2Cpp.KeyBehaviour>();
 
@@ -282,7 +288,7 @@ namespace DevourClient.Helpers
 
         public static IEnumerator GetDemons()
         {
-            while (true)
+            while (isRunning)
             {
                 Demons = Il2Cpp.SurvivalDemonBehaviour.FindObjectsOfType<Il2Cpp.SurvivalDemonBehaviour>();
 
@@ -293,7 +299,7 @@ namespace DevourClient.Helpers
 
         public static IEnumerator GetSpiders()
         {
-            while (true)
+            while (isRunning)
             {
                 Spiders = Il2Cpp.SpiderBehaviour.FindObjectsOfType<Il2Cpp.SpiderBehaviour>();
 
@@ -304,7 +310,7 @@ namespace DevourClient.Helpers
 
         public static IEnumerator GetGhosts()
         {
-            while (true)
+            while (isRunning)
             {
                 Ghosts = Il2Cpp.GhostBehaviour.FindObjectsOfType<Il2Cpp.GhostBehaviour>();
 
@@ -315,7 +321,7 @@ namespace DevourClient.Helpers
 
         public static IEnumerator GetBoars()
         {
-            while (true)
+            while (isRunning)
             {
                 Boars = Il2Cpp.BoarBehaviour.FindObjectsOfType<Il2Cpp.BoarBehaviour>();
 
@@ -326,7 +332,7 @@ namespace DevourClient.Helpers
 
         public static IEnumerator GetCorpses()
         {
-            while (true)
+            while (isRunning)
             {
                 Corpses = Il2Cpp.CorpseBehaviour.FindObjectsOfType<Il2Cpp.CorpseBehaviour>();
 
@@ -337,7 +343,7 @@ namespace DevourClient.Helpers
 
         public static IEnumerator GetCrows()
         {
-            while (true)
+            while (isRunning)
             {
                 Crows = Il2Cpp.CrowBehaviour.FindObjectsOfType<Il2Cpp.CrowBehaviour>();
 
@@ -348,9 +354,20 @@ namespace DevourClient.Helpers
 
         public static IEnumerator GetLumps()
         {
-            while (true)
+            while (isRunning)
             {
                 Lumps = Il2Cpp.ManorLumpController.FindObjectsOfType<Il2Cpp.ManorLumpController>();
+
+                // Wait 5 seconds before caching objects again.
+                yield return new WaitForSeconds(5f);
+            }
+        }
+
+        public static IEnumerator GetMonkeys()
+        {
+            while (isRunning)
+            {
+                Monkeys = Il2Cpp.MonkeyBehaviour.FindObjectsOfType<Il2Cpp.MonkeyBehaviour>();
 
                 // Wait 5 seconds before caching objects again.
                 yield return new WaitForSeconds(5f);
@@ -362,12 +379,112 @@ namespace DevourClient.Helpers
             /*
              * ikr AzazelS, because in case we spawn multiple we want the esp to render all of them
             */
-            while (true)
+            while (isRunning)
             {
                 Azazels = Il2Cpp.SurvivalAzazelBehaviour.FindObjectsOfType<Il2Cpp.SurvivalAzazelBehaviour>();
 
                 // Wait 5 seconds before caching objects again.
                 yield return new WaitForSeconds(5f);
+            }
+        }
+
+        /// <summary>
+        /// 启动所有协程
+        /// </summary>
+        public static void StartAllCoroutines()
+        {
+            isRunning = true;
+        }
+
+        /// <summary>
+        /// 停止所有协程并清理协程引用
+        /// </summary>
+        public static void StopAllCoroutines()
+        {
+            try
+            {
+                // 设置标志，让所有协程循环自然退出
+                isRunning = false;
+
+                // 停止所有记录的协程
+                foreach (var coroutine in activeCoroutines)
+                {
+                    if (coroutine != null)
+                    {
+                        MelonCoroutines.Stop(coroutine);
+                    }
+                }
+
+                // 清空协程引用列表
+                activeCoroutines.Clear();
+
+                // 清理缓存对象
+                CleanupCachedObjects();
+
+                MelonLogger.Msg("All coroutines stopped and cleaned up successfully.");
+            }
+            catch (System.Exception ex)
+            {
+                MelonLogger.Error($"Error stopping coroutines: {ex.Message}");
+            }
+        }
+
+        /// <summary>
+        /// 清理所有缓存的游戏对象引用
+        /// </summary>
+        public static void CleanupCachedObjects()
+        {
+            try
+            {
+                // 清理玩家对象引用
+                if (Players != null)
+                {
+                    foreach (var player in Players)
+                    {
+                        if (player != null)
+                        {
+                            player.p_GameObject = null;
+                        }
+                    }
+                }
+
+                // 将所有实体数组设为null，释放对游戏对象的引用
+                Players = null;
+                GoatsAndRats = null;
+                SurvivalInteractables = null;
+                Keys = null;
+                Demons = null;
+                Spiders = null;
+                Ghosts = null;
+                Azazels = null;
+                Boars = null;
+                Corpses = null;
+                Crows = null;
+                Lumps = null;
+                Monkeys = null;
+
+                // 清理本地玩家引用
+                if (LocalPlayer_ != null)
+                {
+                    LocalPlayer_.p_GameObject = null;
+                }
+
+                MelonLogger.Msg("Cached objects cleaned up successfully.");
+            }
+            catch (System.Exception ex)
+            {
+                MelonLogger.Error($"Error cleaning up cached objects: {ex.Message}");
+            }
+        }
+
+        /// <summary>
+        /// 注册协程引用用于后续管理
+        /// </summary>
+        public static void RegisterCoroutine(object coroutine)
+        {
+            if (coroutine != null && !activeCoroutines.Contains(coroutine))
+            {
+                activeCoroutines.Add(coroutine);
             }
         }
     }

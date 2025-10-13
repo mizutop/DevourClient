@@ -11,7 +11,7 @@
         {
             switch (sceneName)
             {
-                case "Devour":
+                case "Anna":
                     return "Farmhouse";
                 case "Molly":
                     return "Asylum";
@@ -23,6 +23,8 @@
                     return "Slaughterhouse";
                 case "Manor":
                     return "Manor";
+                case "Carnival":
+                    return "Carnival";
                 default:
                     return "Menu";
             }

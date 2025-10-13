@@ -12,4 +12,78 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
     <WarningLevel>0</WarningLevel>
   </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="0Harmony">
+      <HintPath>E:\SteamLibrary\steamapps\common\Devour\MelonLoader\net6\0Harmony.dll</HintPath>
+    </Reference>
+    <Reference Include="Assembly-CSharp">
+      <HintPath>E:\SteamLibrary\steamapps\common\Devour\MelonLoader\Il2CppAssemblies\Assembly-CSharp.dll</HintPath>
+    </Reference>
+    <Reference Include="Il2CppBehaviorDesigner.Runtime">
+      <HintPath>E:\SteamLibrary\steamapps\common\Devour\MelonLoader\Il2CppAssemblies\Il2CppBehaviorDesigner.Runtime.dll</HintPath>
+    </Reference>
+    <Reference Include="Il2Cppbolt">
+      <HintPath>E:\SteamLibrary\steamapps\common\Devour\MelonLoader\Il2CppAssemblies\Il2Cppbolt.dll</HintPath>
+    </Reference>
+    <Reference Include="Il2Cppbolt.user">
+      <HintPath>E:\SteamLibrary\steamapps\common\Devour\MelonLoader\Il2CppAssemblies\Il2Cppbolt.user.dll</HintPath>
+    </Reference>
+    <Reference Include="Il2Cppcom.rlabrecque.steamworks.net">
+      <HintPath>E:\SteamLibrary\steamapps\common\Devour\MelonLoader\Il2CppAssemblies\Il2Cppcom.rlabrecque.steamworks.net.dll</HintPath>
+    </Reference>
+    <Reference Include="Il2CppInterop.Runtime">
+      <HintPath>E:\SteamLibrary\steamapps\common\Devour\MelonLoader\net6\Il2CppInterop.Runtime.dll</HintPath>
+    </Reference>
+    <Reference Include="Il2Cppmscorlib">
+      <HintPath>E:\SteamLibrary\steamapps\common\Devour\MelonLoader\Il2CppAssemblies\Il2Cppmscorlib.dll</HintPath>
+    </Reference>
+    <Reference Include="Il2CppOpsive.UltimateCharacterController">
+      <HintPath>E:\SteamLibrary\steamapps\common\Devour\MelonLoader\Il2CppAssemblies\Il2CppOpsive.UltimateCharacterController.dll</HintPath>
+    </Reference>
+    <Reference Include="Il2Cppudpkit">
+      <HintPath>E:\SteamLibrary\steamapps\common\Devour\MelonLoader\Il2CppAssemblies\Il2Cppudpkit.dll</HintPath>
+    </Reference>
+    <Reference Include="Il2Cppudpkit.common">
+      <HintPath>E:\SteamLibrary\steamapps\common\Devour\MelonLoader\Il2CppAssemblies\Il2Cppudpkit.common.dll</HintPath>
+    </Reference>
+    <Reference Include="Il2Cppudpkit.platform.photon">
+      <HintPath>E:\SteamLibrary\steamapps\common\Devour\MelonLoader\Il2CppAssemblies\Il2Cppudpkit.platform.photon.dll</HintPath>
+    </Reference>
+    <Reference Include="MelonLoader">
+      <HintPath>E:\SteamLibrary\steamapps\common\Devour\MelonLoader\net6\MelonLoader.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine">
+      <HintPath>E:\SteamLibrary\steamapps\common\Devour\MelonLoader\Il2CppAssemblies\UnityEngine.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine.AnimationModule">
+      <HintPath>E:\SteamLibrary\steamapps\common\Devour\MelonLoader\Il2CppAssemblies\UnityEngine.AnimationModule.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine.CoreModule">
+      <HintPath>E:\SteamLibrary\steamapps\common\Devour\MelonLoader\Il2CppAssemblies\UnityEngine.CoreModule.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine.HotReloadModule">
+      <HintPath>E:\SteamLibrary\steamapps\common\Devour\MelonLoader\Il2CppAssemblies\UnityEngine.HotReloadModule.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine.IMGUIModule">
+      <HintPath>E:\SteamLibrary\steamapps\common\Devour\MelonLoader\Il2CppAssemblies\UnityEngine.IMGUIModule.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine.InputLegacyModule">
+      <HintPath>E:\SteamLibrary\steamapps\common\Devour\MelonLoader\Il2CppAssemblies\UnityEngine.InputLegacyModule.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine.InputModule">
+      <HintPath>E:\SteamLibrary\steamapps\common\Devour\MelonLoader\Il2CppAssemblies\UnityEngine.InputModule.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine.PhysicsModule">
+      <HintPath>E:\SteamLibrary\steamapps\common\Devour\MelonLoader\Il2CppAssemblies\UnityEngine.PhysicsModule.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine.UI">
+      <HintPath>E:\SteamLibrary\steamapps\common\Devour\MelonLoader\Il2CppAssemblies\UnityEngine.UI.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine.UIModule">
+      <HintPath>E:\SteamLibrary\steamapps\common\Devour\MelonLoader\Il2CppAssemblies\UnityEngine.UIModule.dll</HintPath>
+    </Reference>
+    <Reference Include="Unity.TextMeshPro">
+      <HintPath>E:\SteamLibrary\steamapps\common\Devour\MelonLoader\Il2CppAssemblies\Unity.TextMeshPro.dll</HintPath>
+    </Reference>
+  </ItemGroup>
 </Project>

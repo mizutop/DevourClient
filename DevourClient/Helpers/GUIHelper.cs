@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using System.Collections.Generic;
 
 namespace DevourClient.Helpers
 {
@@ -7,6 +8,13 @@ namespace DevourClient.Helpers
         private static float R;
         private static float G;
         private static float B;
+
+        private static Texture2D previewTexture = null;
+        private static Dictionary<Color, Texture2D> colorTextureCache = new Dictionary<Color, Texture2D>();
+        private static Dictionary<int, Texture2D> circularTextureCache = new Dictionary<int, Texture2D>();
+
+        private static Color lastPreviewColor = Color.clear;
+        private static GUIStyle cachedBoxStyle = null;
 
         public static Color ColorPick(string title, Color color)
         {
@@ -24,12 +32,24 @@ namespace DevourClient.Helpers
 
             void DrawPreview(Rect position, Color color_to_draw)
             {
-                Texture2D texture = new Texture2D(1, 1);
-                texture.SetPixel(0, 0, color_to_draw);
-                texture.Apply();
-                GUIStyle boxStyle = new GUIStyle(GUI.skin.box);
-                boxStyle.normal.background = texture;
-                GUI.Box(position, GUIContent.none, boxStyle);
+                if (previewTexture == null || lastPreviewColor != color_to_draw)
+                {
+                    if (previewTexture == null)
+                    {
+                        previewTexture = new Texture2D(1, 1);
+                    }
+                    
+                    previewTexture.SetPixel(0, 0, color_to_draw);
+                    previewTexture.Apply();
+                    lastPreviewColor = color_to_draw;
+                }
+
+                if (cachedBoxStyle == null)
+                {
+                    cachedBoxStyle = new GUIStyle(GUI.skin.box);
+                }
+                cachedBoxStyle.normal.background = previewTexture;
+                GUI.Box(position, GUIContent.none, cachedBoxStyle);
             }
 
             DrawPreview(new Rect(Settings.Settings.x + 195, Settings.Settings.y + 100, 20, 90), color);
@@ -39,6 +59,14 @@ namespace DevourClient.Helpers
         
         public static Texture2D MakeTex(int width, int height, Color col)
         {
+            if (colorTextureCache.TryGetValue(col, out Texture2D cachedTexture))
+            {
+                if (cachedTexture != null)
+                {
+                    return cachedTexture;
+                }
+            }
+
             Color[] pix = new Color[width * height];
             for (int i = 0; i < pix.Length; ++i)
             {
@@ -47,11 +75,24 @@ namespace DevourClient.Helpers
             Texture2D result = new Texture2D(width, height);
             result.SetPixels(pix);
             result.Apply();
+
+            colorTextureCache[col] = result;
+
             return result;
         }
         
         public static Texture2D GetCircularTexture(int width, int height)
         {
+            int cacheKey = width;
+
+            if (circularTextureCache.TryGetValue(cacheKey, out Texture2D cachedTexture))
+            {
+                if (cachedTexture != null)
+                {
+                    return cachedTexture;
+                }
+            }
+
             Texture2D texture = new Texture2D(width, height);
             for (int x = 0; x < texture.width; x++)
             {
@@ -70,7 +111,36 @@ namespace DevourClient.Helpers
 
             texture.Apply();
 
+            circularTextureCache[cacheKey] = texture;
+
             return texture;
+        }
+
+        public static void Cleanup()
+        {
+            if (previewTexture != null)
+            {
+                UnityEngine.Object.Destroy(previewTexture);
+                previewTexture = null;
+            }
+
+            foreach (var texture in colorTextureCache.Values)
+            {
+                if (texture != null)
+                {
+                    UnityEngine.Object.Destroy(texture);
+                }
+            }
+            colorTextureCache.Clear();
+
+            foreach (var texture in circularTextureCache.Values)
+            {
+                if (texture != null)
+                {
+                    UnityEngine.Object.Destroy(texture);
+                }
+            }
+            circularTextureCache.Clear();
         }
     }
 }

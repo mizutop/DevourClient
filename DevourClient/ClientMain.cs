@@ -4,10 +4,13 @@ using System.Threading.Tasks;
 using Il2CppPhoton.Bolt;
 using UnityEngine;
 using Il2Cpp;
+using System;
+using System.Collections;
+using System.Collections.Generic;
 
 namespace DevourClient
 {
-    public class ClientMain : MonoBehaviour
+    public class ClientMain : MonoBehaviour, IDisposable
     {
         public ClientMain(IntPtr ptr)
             : base(ptr)
@@ -25,7 +28,7 @@ namespace DevourClient
             Players = 6
         }
 
-        static Rect windowRect = new Rect(Settings.Settings.x + 10, Settings.Settings.y + 10, 700, 700);
+        static Rect windowRect = new Rect(Settings.Settings.x + 10, Settings.Settings.y + 10, 800, 750);
         static CurrentTab current_tab = CurrentTab.Visuals;
 
         static bool flashlight_toggle = false;
@@ -34,13 +37,12 @@ namespace DevourClient
         static bool azazel_esp_colorpick = false;
         static bool spoofLevel = false;
         static float spoofLevelValue = 0;
-        static bool change_server_name = false;
-        static bool change_steam_name = false;
+        
+        // UI variables
         static bool fly = false;
         static float fly_speed = 5;
         static bool fastMove = false;
         static float _PlayerSpeedMultiplier = 1;
-        public static float lobbySize = 4;
         public static bool _IsAutoRespawn = false;
         public static bool unlimitedUV = false;
         public static bool exp_modifier = false;
@@ -53,7 +55,6 @@ namespace DevourClient
         static bool azazel_esp = false;
         static bool azazel_skel_esp = false;
         static bool azazel_snapline = false;
-        static bool spam_message = false;
         static bool item_esp = false;
         static bool goat_rat_esp = false;
         static bool demon_esp = false;
@@ -64,6 +65,12 @@ namespace DevourClient
         static bool should_show_start_message = true;
         static Texture2D crosshairTexture = default!;
 
+        private static int frameCount = 0;
+        private static int lastMemoryLog = 0;
+        private const int GC_GEN0_INTERVAL = 300;
+        private const int GC_FULL_INTERVAL = 3600;
+        private const int MEMORY_LOG_INTERVAL = 1800;
+
         public void Start()
         {
             MelonLogger.Msg("For the Queen !");
@@ -71,21 +78,27 @@ namespace DevourClient
             MelonLogger.Warning("Github : https://github.com/ALittlePatate/DevourClient");
             MelonLogger.Warning("Note : if you payed for this you most likely got scammed.");
 
+            long startMemory = GC.GetTotalMemory(false);
+            MelonLogger.Msg($"[Memory Monitor] Startup managed memory: {startMemory / 1024 / 1024} MB");
+
             crosshairTexture = Helpers.GUIHelper.GetCircularTexture(5, 5);
 
-            MelonCoroutines.Start(Helpers.Entities.GetLocalPlayer());
-            MelonCoroutines.Start(Helpers.Entities.GetGoatsAndRats());
-            MelonCoroutines.Start(Helpers.Entities.GetSurvivalInteractables());
-            MelonCoroutines.Start(Helpers.Entities.GetKeys());
-            MelonCoroutines.Start(Helpers.Entities.GetDemons());
-            MelonCoroutines.Start(Helpers.Entities.GetSpiders());
-            MelonCoroutines.Start(Helpers.Entities.GetGhosts());
-            MelonCoroutines.Start(Helpers.Entities.GetBoars());
-            MelonCoroutines.Start(Helpers.Entities.GetCorpses());
-            MelonCoroutines.Start(Helpers.Entities.GetCrows());
-            MelonCoroutines.Start(Helpers.Entities.GetLumps());
-            MelonCoroutines.Start(Helpers.Entities.GetAzazels());
-            MelonCoroutines.Start(Helpers.Entities.GetAllPlayers());
+            Helpers.Entities.StartAllCoroutines();
+
+            Helpers.Entities.RegisterCoroutine(MelonCoroutines.Start(Helpers.Entities.GetLocalPlayer()));
+            Helpers.Entities.RegisterCoroutine(MelonCoroutines.Start(Helpers.Entities.GetGoatsAndRats()));
+            Helpers.Entities.RegisterCoroutine(MelonCoroutines.Start(Helpers.Entities.GetSurvivalInteractables()));
+            Helpers.Entities.RegisterCoroutine(MelonCoroutines.Start(Helpers.Entities.GetKeys()));
+            Helpers.Entities.RegisterCoroutine(MelonCoroutines.Start(Helpers.Entities.GetDemons()));
+            Helpers.Entities.RegisterCoroutine(MelonCoroutines.Start(Helpers.Entities.GetSpiders()));
+            Helpers.Entities.RegisterCoroutine(MelonCoroutines.Start(Helpers.Entities.GetGhosts()));
+            Helpers.Entities.RegisterCoroutine(MelonCoroutines.Start(Helpers.Entities.GetBoars()));
+            Helpers.Entities.RegisterCoroutine(MelonCoroutines.Start(Helpers.Entities.GetCorpses()));
+            Helpers.Entities.RegisterCoroutine(MelonCoroutines.Start(Helpers.Entities.GetCrows()));
+            Helpers.Entities.RegisterCoroutine(MelonCoroutines.Start(Helpers.Entities.GetLumps()));
+            Helpers.Entities.RegisterCoroutine(MelonCoroutines.Start(Helpers.Entities.GetAzazels()));
+            Helpers.Entities.RegisterCoroutine(MelonCoroutines.Start(Helpers.Entities.GetAllPlayers()));
+            Helpers.Entities.RegisterCoroutine(MelonCoroutines.Start(Helpers.Entities.GetMonkeys()));
         }
 
         public void Update()
@@ -141,31 +154,11 @@ namespace DevourClient
             }
             else
             {
-                if (change_server_name)
-                {
-                    Hacks.Misc.SetServerName("patate on top !");
-                }
-
-                if (change_steam_name)
-                {
-                    Hacks.Misc.SetSteamName("patate");
-                }
 
                 if (crosshair && in_game_cache)
                 {
                     in_game_cache = false;
                 }
-            }
-
-            if (spam_message)
-            {
-                MelonLogger.Msg("done");
-                Hacks.Misc.MessageSpam(Settings.Settings.message_to_spam);
-            }
-
-            if (spoofLevel)
-            {
-                Hacks.Misc.SetRank((int)spoofLevelValue);
             }
 
             if (Input.GetKeyDown(Settings.Settings.flyKey))
@@ -221,7 +214,30 @@ namespace DevourClient
                 {
                     Helpers.Entities.LocalPlayer_.p_GameObject.GetComponent<Il2CppOpsive.UltimateCharacterController.Character.UltimateCharacterLocomotion>().TimeScale = _PlayerSpeedMultiplier;
                 }
-                catch { return; }
+                catch { return;                 }
+            }
+
+
+            frameCount++;
+
+            if (frameCount % GC_GEN0_INTERVAL == 0)
+            {
+                GC.Collect(0, GCCollectionMode.Optimized);
+            }
+
+            if (frameCount % GC_FULL_INTERVAL == 0)
+            {
+                GC.Collect();
+                GC.WaitForPendingFinalizers();
+                GC.Collect();
+                frameCount = 0;
+            }
+
+            if (frameCount - lastMemoryLog >= MEMORY_LOG_INTERVAL)
+            {
+                long memoryUsed = GC.GetTotalMemory(false);
+                MelonLogger.Msg($"[Memory Monitor] Current managed memory: {memoryUsed / 1024 / 1024} MB | Frame: {frameCount}");
+                lastMemoryLog = frameCount;
             }
         }
 
@@ -233,17 +249,37 @@ namespace DevourClient
                     should_show_start_message = false;
             }
 
-            GUI.backgroundColor = Color.grey;
+            // 保存原始GUI状态
+            Color originalBackgroundColor = GUI.backgroundColor;
+            GUISkin originalSkin = GUI.skin;
 
-            GUI.skin.button.normal.background = GUIHelper.MakeTex(2, 2, Color.black);
-            GUI.skin.button.normal.textColor = Color.white;
+            try
+            {
+                GUI.backgroundColor = Color.grey;
 
-            GUI.skin.button.hover.background = GUIHelper.MakeTex(2, 2, Color.green);
-            GUI.skin.button.hover.textColor = Color.black;
+                // 设置按钮样式
+                GUI.skin.button.normal.background = GUIHelper.MakeTex(2, 2, Color.black);
+                GUI.skin.button.normal.textColor = Color.white;
+                GUI.skin.button.hover.background = GUIHelper.MakeTex(2, 2, Color.green);
+                GUI.skin.button.hover.textColor = Color.black;
 
-            GUI.skin.toggle.onNormal.textColor = Color.yellow;
+                // 设置切换按钮样式
+                GUI.skin.toggle.onNormal.textColor = Color.yellow;
 
-            //from https://www.unknowncheats.me/forum/unity/437277-mono-internal-optimisation-tips.html
+                // 设置文本框样式 - 这是关键修复
+                GUI.skin.textField.normal.background = GUIHelper.MakeTex(2, 2, new Color(0.2f, 0.2f, 0.2f, 0.8f));
+                GUI.skin.textField.normal.textColor = Color.white;
+                GUI.skin.textField.focused.background = GUIHelper.MakeTex(2, 2, new Color(0.3f, 0.3f, 0.3f, 0.9f));
+                GUI.skin.textField.focused.textColor = Color.yellow;
+                GUI.skin.textField.border = new RectOffset(2, 2, 2, 2);
+
+                // 设置标签样式
+                GUI.skin.label.normal.textColor = Color.white;
+
+                // 设置滑块样式
+                GUI.skin.horizontalSlider.normal.background = GUIHelper.MakeTex(2, 2, new Color(0.3f, 0.3f, 0.3f, 0.8f));
+                GUI.skin.horizontalSliderThumb.normal.background = GUIHelper.MakeTex(2, 2, Color.white);
+
             if (UnityEngine.Event.current.type == EventType.Repaint)
             {
                 if (player_esp || player_snapline || player_skel_esp)
@@ -361,6 +397,13 @@ namespace DevourClient
                             Render.Render.DrawNameESP(lump.transform.position, "Lump", new Color(1.0f, 0.0f, 0.0f, 1.0f));
                         }
                     }
+                    foreach (Il2Cpp.MonkeyBehaviour monkey in Helpers.Entities.Monkeys)
+                    {
+                        if (monkey != null)
+                        {
+                            Render.Render.DrawNameESP(monkey.transform.position, "Monkey", new Color(1.0f, 0.0f, 0.0f, 1.0f));
+                        }
+                    }
                 }
 
                 if (azazel_esp || azazel_snapline || azazel_skel_esp)
@@ -379,7 +422,7 @@ namespace DevourClient
                     }
                 }
 
-                if (crosshair && in_game_cache) //&& !Player.IsPlayerCrawling())
+                if (crosshair && in_game_cache)
                 {
                     const float crosshairSize = 4;
 
@@ -395,9 +438,20 @@ namespace DevourClient
                 }
             }
 
-            if (Settings.Settings.menu_enable) //Si on appuie sur INSERT
+            if (Settings.Settings.menu_enable)
             {
                 windowRect = GUI.Window(0, windowRect, (GUI.WindowFunction)Tabs, "DevourClient");
+            }
+            }
+            catch (System.Exception ex)
+            {
+                MelonLogger.Msg($"OnGUI Error: {ex.Message}");
+            }
+            finally
+            {
+                // 恢复原始GUI状态
+                GUI.backgroundColor = originalBackgroundColor;
+                GUI.skin = originalSkin;
             }
         }
 
@@ -517,8 +571,6 @@ namespace DevourClient
 
             GUI.Label(new Rect(Settings.Settings.x + 10, Settings.Settings.y + 150, 120, 30), "Azazel & Demons");
 
-            // azazel
-
             if (GUI.Button(new Rect(Settings.Settings.x + 10, Settings.Settings.y + 180, 60, 25), "Sam") && Player.IsInGameOrLobby() && BoltNetwork.IsServer)
             {
                 Hacks.Misc.SpawnAzazel((PrefabId)BoltPrefabs.AzazelSam);
@@ -549,7 +601,10 @@ namespace DevourClient
                 BoltNetwork.Instantiate(BoltPrefabs.AzazelApril, Player.GetPlayer().transform.position, Quaternion.identity);
             }
 
-            // demon
+            if (GUI.Button(new Rect(Settings.Settings.x + 430, Settings.Settings.y + 180, 60, 25), "Kai") && Player.IsInGameOrLobby() && BoltNetwork.IsServer)
+            {
+                BoltNetwork.Instantiate(BoltPrefabs.AzazelKai, Player.GetPlayer().transform.position, Quaternion.identity);
+            }
 
             if (GUI.Button(new Rect(Settings.Settings.x + 10, Settings.Settings.y + 220, 60, 25), "Ghost") && Player.IsInGameOrLobby() && BoltNetwork.IsServer)
             {
@@ -586,7 +641,10 @@ namespace DevourClient
                 BoltNetwork.Instantiate(BoltPrefabs.ManorLump, Player.GetPlayer().transform.position, Quaternion.identity);
             }
 
-            // Animal
+            if (GUI.Button(new Rect(Settings.Settings.x + 500, Settings.Settings.y + 220, 60, 25), "Monkey") && BoltNetwork.IsServer && Player.IsInGameOrLobby())
+            {
+                BoltNetwork.Instantiate(BoltPrefabs.Monkey, Player.GetPlayer().transform.position, Quaternion.identity);
+            }
 
             if (GUI.Button(new Rect(Settings.Settings.x + 10, Settings.Settings.y + 260, 60, 25), "Rat"))
             {
@@ -863,39 +921,64 @@ namespace DevourClient
 
                     infinite_mirrors = GUI.Toggle(new Rect(Settings.Settings.x + 370, Settings.Settings.y + 150, 150, 20), infinite_mirrors, "Infinite mirrors");
                     break;
+
+                case "Carnival":
+                    if (GUI.Button(new Rect(Settings.Settings.x + 190, Settings.Settings.y + 70, 150, 30), "TP to Azazel"))
+                    {
+                        try
+                        {
+                            Il2Cpp.NolanBehaviour nb = Player.GetPlayer();
+
+                            nb.TeleportTo(Helpers.Map.GetAzazel().transform.position, Quaternion.identity);
+                        }
+                        catch
+                        {
+                            MelonLogger.Msg("Azazel not found !");
+                        }
+                    }
+
+                    if (GUI.Button(new Rect(Settings.Settings.x + 190, Settings.Settings.y + 110, 150, 30), "Despawn Monkeys"))
+                    {
+                        Hacks.Misc.DespawnMonkeys();
+                    }
+                    break;
             }
 
-            // load map
             GUI.Label(new Rect(Settings.Settings.x + 10, Settings.Settings.y + 210, 100, 30), "Load Map: ");
 
-            if (GUI.Button(new Rect(Settings.Settings.x + 10, Settings.Settings.y + 240, 100, 30), "Farmhouse") && BoltNetwork.IsServer)
+            if (GUI.Button(new Rect(Settings.Settings.x + 10, Settings.Settings.y + 240, 90, 30), "Farmhouse") && BoltNetwork.IsServer)
             {
                 Helpers.Map.LoadMap("Devour");
             }
 
-            if (GUI.Button(new Rect(Settings.Settings.x + 120, Settings.Settings.y + 240, 100, 30), "Asylum") && BoltNetwork.IsServer)
+            if (GUI.Button(new Rect(Settings.Settings.x + 110, Settings.Settings.y + 240, 90, 30), "Asylum") && BoltNetwork.IsServer)
             {
                 Helpers.Map.LoadMap("Molly");
             }
 
-            if (GUI.Button(new Rect(Settings.Settings.x + 230, Settings.Settings.y + 240, 100, 30), "Inn") && BoltNetwork.IsServer)
+            if (GUI.Button(new Rect(Settings.Settings.x + 210, Settings.Settings.y + 240, 90, 30), "Inn") && BoltNetwork.IsServer)
             {
                 Helpers.Map.LoadMap("Inn");
             }
 
-            if (GUI.Button(new Rect(Settings.Settings.x + 340, Settings.Settings.y + 240, 100, 30), "Town") && BoltNetwork.IsServer)
+            if (GUI.Button(new Rect(Settings.Settings.x + 310, Settings.Settings.y + 240, 90, 30), "Town") && BoltNetwork.IsServer)
             {
                 Helpers.Map.LoadMap("Town");
             }
 
-            if (GUI.Button(new Rect(Settings.Settings.x + 450, Settings.Settings.y + 240, 100, 30), "Slaughterhouse") && BoltNetwork.IsServer)
+            if (GUI.Button(new Rect(Settings.Settings.x + 10, Settings.Settings.y + 280, 90, 30), "Slaughterhouse") && BoltNetwork.IsServer)
             {
                 Helpers.Map.LoadMap("Slaughterhouse");
             }
 
-            if (GUI.Button(new Rect(Settings.Settings.x + 560, Settings.Settings.y + 240, 100, 30), "Manor") && BoltNetwork.IsServer)
+            if (GUI.Button(new Rect(Settings.Settings.x + 110, Settings.Settings.y + 280, 90, 30), "Manor") && BoltNetwork.IsServer)
             {
                 Helpers.Map.LoadMap("Manor");
+            }
+
+            if (GUI.Button(new Rect(Settings.Settings.x + 210, Settings.Settings.y + 280, 90, 30), "Carnival") && BoltNetwork.IsServer)
+            {
+                Helpers.Map.LoadMap("Carnival");
             }
 
         }
@@ -1054,7 +1137,7 @@ namespace DevourClient
                 }
             }
 
-            if (GUILayout.Button("Shovel"))
+            if (GUILayout.Button("Spade"))
             {
                 if (BoltNetwork.IsServer && !Player.IsInGame())
                 {
@@ -1077,6 +1160,29 @@ namespace DevourClient
                     Hacks.Misc.CarryObject("SurvivalCake");
                 }
             }
+            if (GUILayout.Button("MusicBox"))
+            {
+                if (BoltNetwork.IsServer && !Player.IsInGame())
+                {
+                    BoltNetwork.Instantiate(BoltPrefabs.SurvivalMusicBox, Player.GetPlayer().transform.position, Quaternion.identity);
+                }
+                else
+                {
+                    Hacks.Misc.CarryObject("MusicBox-Idle");
+                }
+            }
+            if (GUILayout.Button("Coin"))
+            {
+                if (BoltNetwork.IsServer && !Player.IsInGame())
+                {
+                    BoltNetwork.Instantiate(BoltPrefabs.SurvivalCoin, Player.GetPlayer().transform.position, Quaternion.identity);
+                }
+                else
+                {
+                    Hacks.Misc.CarryObject("SurvivalCoin");
+                }
+            }
+
 
             GUILayout.EndScrollView();
             GUILayout.EndVertical();
@@ -1149,29 +1255,40 @@ namespace DevourClient
                 }
             }
      
-            if (GUILayout.Button("Dirty head"))
-            {
-                if (BoltNetwork.IsServer && !Player.IsInGame())
-                {
-                    BoltNetwork.Instantiate(BoltPrefabs.SurvivalHead, Player.GetPlayer().transform.position, Quaternion.identity);
-                }
-                else
-                {
-                    Hacks.Misc.CarryObject("SurvivalHead");
-                }
-            }
+            // if (GUILayout.Button("Dirty head"))
+            // {
+            //     if (BoltNetwork.IsServer && !Player.IsInGame())
+            //     {
+            //         BoltNetwork.Instantiate(BoltPrefabs.SurvivalHead, Player.GetPlayer().transform.position, Quaternion.identity);
+            //     }
+            //     else
+            //     {
+            //         Hacks.Misc.CarryObject("SurvivalHead");
+            //     }
+            // }
 
-            if (GUILayout.Button("Clean head"))
+            // if (GUILayout.Button("Clean head"))
+            // {
+            //     if (BoltNetwork.IsServer && !Player.IsInGame())
+            //     {
+            //         BoltNetwork.Instantiate(BoltPrefabs.SurvivalCleanHead, Player.GetPlayer().transform.position, Quaternion.identity);
+            //     }
+            //     else
+            //     {
+            //         Hacks.Misc.CarryObject("SurvivalCleanHead");
+            //     }
+            // }
+            if (GUILayout.Button("Doll Head"))
             {
                 if (BoltNetwork.IsServer && !Player.IsInGame())
                 {
-                    BoltNetwork.Instantiate(BoltPrefabs.SurvivalCleanHead, Player.GetPlayer().transform.position, Quaternion.identity);
+                    BoltNetwork.Instantiate(BoltPrefabs.SurvivalDollHead, Player.GetPlayer().transform.position, Quaternion.identity);
                 }
                 else
                 {
-                    Hacks.Misc.CarryObject("SurvivalCleanHead");
+                    Hacks.Misc.CarryObject("SurvivalDollHead");
                 }
-            }
+            }   
 
             GUILayout.EndScrollView();
             GUILayout.EndVertical();
@@ -1463,73 +1580,67 @@ namespace DevourClient
 
         private static void MiscTab()
         {
-            if (GUI.Button(new Rect(Settings.Settings.x + 10, Settings.Settings.y + 70, 150, 30), "Unlock Achievements"))
+            // === 游戏功能按钮区域 (左上) ===
+            if (GUI.Button(new Rect(Settings.Settings.x + 10, Settings.Settings.y + 70, 140, 25), "Unlock Achievements"))
             {
                 Thread AchievementsThread = new Thread(new ThreadStart(Hacks.Unlock.Achievements));
                 AchievementsThread.Start();
 
-                MelonLogger.Msg("Achievements Unlocked!");
+                MelonLogger.Msg("Achievements unlocked!");
+                Hacks.Misc.ShowMessageBox("Achievements unlocked!");
             }
 
-            if (GUI.Button(new Rect(Settings.Settings.x + 10, Settings.Settings.y + 110, 150, 30), "Unlock Doors"))
+            if (GUI.Button(new Rect(Settings.Settings.x + 160, Settings.Settings.y + 70, 140, 25), "Unlock Doors"))
             {
                 Hacks.Unlock.Doors();
 
-                MelonLogger.Msg("Doors Unlocked!");
+                MelonLogger.Msg("Doors unlocked!");
+                Hacks.Misc.ShowMessageBox("Doors unlocked!");
             }
 
-            if (GUI.Button(new Rect(Settings.Settings.x + 10, Settings.Settings.y + 150, 150, 30), "TP Keys") && Player.IsInGame())
+            if (GUI.Button(new Rect(Settings.Settings.x + 10, Settings.Settings.y + 105, 140, 25), "Teleport Keys") && Player.IsInGame())
             {
                 Hacks.Misc.TPKeys();
-                MelonLogger.Msg("Here are your keys!");
+                MelonLogger.Msg("Keys teleported!");
+                Hacks.Misc.ShowMessageBox("Keys teleported!");
             }
 
-            if (GUI.Button(new Rect(Settings.Settings.x + 10, Settings.Settings.y + 190, 150, 30), "Make Random Noise"))
+            if (GUI.Button(new Rect(Settings.Settings.x + 160, Settings.Settings.y + 105, 140, 25), "Play Random Sound"))
             {
                 Hacks.Misc.PlaySound();
-                MelonLogger.Msg("Playing a random sound!");
+                MelonLogger.Msg("Playing random sound!");
+                Hacks.Misc.ShowMessageBox("Playing random sound!");
             }
 
-            spam_message = GUI.Toggle(new Rect(Settings.Settings.x + 10, Settings.Settings.y + 240, 140, 30), spam_message, "Chat spam");
-            change_steam_name = GUI.Toggle(new Rect(Settings.Settings.x + 10, Settings.Settings.y + 270, 140, 30), change_steam_name, "Change Steam Name");
-            change_server_name = GUI.Toggle(new Rect(Settings.Settings.x + 10, Settings.Settings.y + 300, 140, 30), change_server_name, "Change Server Name");
-            _walkInLobby = GUI.Toggle(new Rect(Settings.Settings.x + 10, Settings.Settings.y + 330, 140, 30), _walkInLobby, "Walk In Lobby");
-            _IsAutoRespawn = GUI.Toggle(new Rect(Settings.Settings.x + 10, Settings.Settings.y + 360, 140, 30), _IsAutoRespawn, "Auto Respawn");
+            // === 基础开关区域 (左中) ===
+            _walkInLobby = GUI.Toggle(new Rect(Settings.Settings.x + 10, Settings.Settings.y + 150, 140, 20), _walkInLobby, "Walk In Lobby");
+            _IsAutoRespawn = GUI.Toggle(new Rect(Settings.Settings.x + 160, Settings.Settings.y + 150, 140, 20), _IsAutoRespawn, "Auto Respawn");
 
-            fly = GUI.Toggle(new Rect(Settings.Settings.x + 10, Settings.Settings.y + 400, 40, 20), fly, "Fly");
-            if (GUI.Button(new Rect(Settings.Settings.x + 60, Settings.Settings.y + 400, 40, 20), Settings.Settings.flyKey.ToString()))
+            // === 飞行控制区域 (左中下) ===
+            fly = GUI.Toggle(new Rect(Settings.Settings.x + 10, Settings.Settings.y + 180, 40, 20), fly, "Fly");
+            if (GUI.Button(new Rect(Settings.Settings.x + 60, Settings.Settings.y + 180, 50, 20), Settings.Settings.flyKey.ToString()))
             {
                 Settings.Settings.flyKey = Settings.Settings.GetKey();
             }
+            GUI.Label(new Rect(Settings.Settings.x + 120, Settings.Settings.y + 180, 80, 20), "Speed:");
+            fly_speed = GUI.HorizontalSlider(new Rect(Settings.Settings.x + 170, Settings.Settings.y + 185, 80, 10), fly_speed, 5f, 20f);
+            GUI.Label(new Rect(Settings.Settings.x + 260, Settings.Settings.y + 180, 40, 20), ((int)fly_speed).ToString());
 
-            fly_speed = GUI.HorizontalSlider(new Rect(Settings.Settings.x + 10, Settings.Settings.y + 430, 100, 10), fly_speed, 5f, 20f);
-            GUI.Label(new Rect(Settings.Settings.x + 120, Settings.Settings.y + 425, 100, 30), ((int)fly_speed).ToString());
+            // === 等级欺骗区域 (左下) ===
+            spoofLevel = GUI.Toggle(new Rect(Settings.Settings.x + 10, Settings.Settings.y + 210, 100, 20), spoofLevel, "Spoof Level");
+            spoofLevelValue = GUI.HorizontalSlider(new Rect(Settings.Settings.x + 120, Settings.Settings.y + 215, 80, 10), spoofLevelValue, 0f, 666f);
+            GUI.Label(new Rect(Settings.Settings.x + 210, Settings.Settings.y + 210, 50, 20), ((int)spoofLevelValue).ToString());
 
+            // === 经验修改区域 (左下) ===
+            exp_modifier = GUI.Toggle(new Rect(Settings.Settings.x + 10, Settings.Settings.y + 240, 100, 20), exp_modifier, "Exp Modifier");
+            exp = GUI.HorizontalSlider(new Rect(Settings.Settings.x + 120, Settings.Settings.y + 245, 80, 10), exp, 1000f, 6000f);
+            GUI.Label(new Rect(Settings.Settings.x + 210, Settings.Settings.y + 240, 50, 20), ((int)exp).ToString());
 
-            spoofLevel = GUI.Toggle(new Rect(Settings.Settings.x + 10, Settings.Settings.y + 470, 150, 20), spoofLevel, "Spoof Level");
-            spoofLevelValue = GUI.HorizontalSlider(new Rect(Settings.Settings.x + 10, Settings.Settings.y + 500, 100, 10), spoofLevelValue, 0f, 666f);
-            GUI.Label(new Rect(Settings.Settings.x + 120, Settings.Settings.y + 495, 100, 30), ((int)spoofLevelValue).ToString());
+            // === 速度修改区域 (左下) ===
+            fastMove = GUI.Toggle(new Rect(Settings.Settings.x + 10, Settings.Settings.y + 270, 100, 20), fastMove, "Player Speed");
+            _PlayerSpeedMultiplier = GUI.HorizontalSlider(new Rect(Settings.Settings.x + 120, Settings.Settings.y + 275, 80, 10), _PlayerSpeedMultiplier, (int)1f, (int)10f);
+            GUI.Label(new Rect(Settings.Settings.x + 210, Settings.Settings.y + 270, 50, 20), ((int)_PlayerSpeedMultiplier).ToString());
 
-
-            exp_modifier = GUI.Toggle(new Rect(Settings.Settings.x + 10, Settings.Settings.y + 540, 150, 20), exp_modifier, "EXP Modifier");
-            exp = GUI.HorizontalSlider(new Rect(Settings.Settings.x + 10, Settings.Settings.y + 570, 100, 10), exp, 1000f, 3000f);
-            GUI.Label(new Rect(Settings.Settings.x + 120, Settings.Settings.y + 565, 100, 30), ((int)exp).ToString());
-
-
-            fastMove = GUI.Toggle(new Rect(Settings.Settings.x + 10, Settings.Settings.y + 610, 150, 20), fastMove, "Player Speed");
-            _PlayerSpeedMultiplier = GUI.HorizontalSlider(new Rect(Settings.Settings.x + 10, Settings.Settings.y + 640, 100, 10), _PlayerSpeedMultiplier, (int)1f, (int)10f);
-            GUI.Label(new Rect(Settings.Settings.x + 120, Settings.Settings.y + 635, 100, 30), ((int)_PlayerSpeedMultiplier).ToString());
-
-            GUI.Label(new Rect(Settings.Settings.x + 295, Settings.Settings.y + 70, 150, 30), "Max players");
-            lobbySize = GUI.HorizontalSlider(new Rect(Settings.Settings.x + 295, Settings.Settings.y + 90, 100, 10), lobbySize, (int)0f, (int)30f);
-            GUI.Label(new Rect(Settings.Settings.x + 405, Settings.Settings.y + 85, 100, 30), ((int)lobbySize).ToString());
-
-            if (GUI.Button(new Rect(Settings.Settings.x + 285, Settings.Settings.y + 110, 150, 30), "Create server"))
-            {
-                MelonLogger.Msg("Creating the server...");
-                Hacks.Misc.CreateCustomizedLobby((int)lobbySize);
-                MelonLogger.Msg("Done !");
-            }
         }
 
         private static void PlayersTab()
@@ -1595,5 +1706,69 @@ namespace DevourClient
             }
         }
 
+        private void OnDestroy()
+        {
+            try
+            {
+                base.StopAllCoroutines();
+                
+                Dispose();
+            }
+            catch (Exception ex)
+            {
+                MelonLogger.Error($"Error in OnDestroy: {ex.Message}");
+            }
+        }
+
+        private void OnApplicationQuit()
+        {
+            try
+            {
+                Dispose();
+            }
+            catch (Exception ex)
+            {
+                MelonLogger.Error($"Error in OnApplicationQuit: {ex.Message}");
+            }
+        }
+
+        public void Dispose()
+        {
+            try
+            {
+                MelonLogger.Msg("Starting ClientMain cleanup...");
+
+                long memoryBeforeCleanup = GC.GetTotalMemory(false);
+                MelonLogger.Msg($"[Memory Monitor] Pre-cleanup managed memory: {memoryBeforeCleanup / 1024 / 1024} MB");
+
+                Helpers.Entities.StopAllCoroutines();
+
+                if (crosshairTexture != null)
+                {
+                    UnityEngine.Object.DestroyImmediate(crosshairTexture);
+                    crosshairTexture = null;
+                }
+
+                Helpers.GUIHelper.Cleanup();
+
+                Helpers.Entities.CleanupCachedObjects();
+
+                GC.Collect();
+                GC.WaitForPendingFinalizers();
+                GC.Collect();
+
+                long memoryAfterCleanup = GC.GetTotalMemory(true);
+                long memoryFreed = memoryBeforeCleanup - memoryAfterCleanup;
+                MelonLogger.Msg($"[Memory Monitor] Post-cleanup managed memory: {memoryAfterCleanup / 1024 / 1024} MB");
+                MelonLogger.Msg($"[Memory Monitor] Memory freed: {memoryFreed / 1024 / 1024} MB");
+
+                MelonLogger.Msg("ClientMain disposed successfully.");
+            }
+            catch (Exception ex)
+            {
+                MelonLogger.Error($"Error disposing ClientMain: {ex.Message}");
+            }
+        }
     }
 }
+

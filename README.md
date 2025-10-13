@@ -25,8 +25,6 @@ Everything about spoofing ehre (steam name, server name, level...) will persist 
 * Doors unlocker (should work fine, though it doesn't seem to work sometimes)
 * Keys teleporter
 * LV spoofer
-* Steam name spoofer (sets it to "patate", again no input text :/)
-* Server name spoofer (sets it to "patate on top !", again no input text :/)
 * Fly
 * Unlock all, including flashlights, perks, outfits. Active by default, can't be turned off, no persistance.
 * Instant Win (allows you to win instantaniously on any map, works in singleplayer, but not as a client. May be working as host)
@@ -47,9 +45,9 @@ Everything about spoofing ehre (steam name, server name, level...) will persist 
 * Walk in the lobby
 * Change the player's speed
 * Fullbright
-* Create a lobby with no player limit
 * Infinite mirrors (Manor update)
 * Switch between realms (Manor update)
+* Due to the game update, I deleted "Steam name spoofer", "Server name spoofer" and "Create a lobby with no player limit" these three functions.For "steam name spoofer", even changed your name by this function, your teamates can still see your name by steam profile, escape button, and your message in game. For "create a lobby with no player limit", if create a lobby with more than four players, the ghost will be stuck or some of the players will not be able to move. So I have to delete this function.(by manafeng)
 
 ## English Installation Tutorial
 
@@ -69,6 +67,23 @@ In order to get all of this working you need to generate the DevourClient.dll fi
 1. [Build the cheat from source](https://github.com/ALittlePatate/DevourClient#building-from-source).
 2. Put the DevourClient.dll file located in `DevourClient\bin\Release\net6.0` inside `C:\Program Files (x86)\Steam\steamapps\common\Devour\Mods` folder.
 3. Start the game, now you have successfully installed DevourClient. Use INSERT to open the menu
+
+## 中文安装指南
+如果你只是想要安装这个插件，直接在游戏里使用的话
+
+1、安装 .net 6 的运行环境 → (https://dotnet.microsoft.com/en-us/download/dotnet/6.0)
+
+2、安装melonloader → (https://github.com/LavaGang/MelonLoader/releases)
+        版本无限制，尽量选择新版即可。打开melonloader页面后，点击devour进入安装界面，全部默认即可，无需勾选或修改其他选项，点击install进行安装（安装过程中可能需要vpn支持）
+    
+3、安装dll文件 → 从本项目的release中下载最新的dll文件，然后将此文件添加到你的devour的安装目录中的mods文件夹里（不知道目录的情况下，可以在steam中右键devour，选择“管理”-“浏览本地文件”即可）
+
+4、运行devour → 如果安装成功，你会看到一个windows窗口进行各类安装提示后，自动进入游戏。点击insert键即可打开和关闭devourclient窗口
+
+ps:有些电脑在安装melonloader之后，会出现fatal error的提示，这个我目前并没有碰到过。但是出现这个提示的主要原因，基本是melonloader安装过程中，提取到devour根目录的melonloader文件夹里的文件出现了问题，比较简单的解决办法就是（1）在别人的同系统同位宽（x86，x32）的电脑里拷贝出来他的melonloader文件夹，然后直接粘贴到自己的电脑里。（2）将melonloader文件夹完全删除，然后重装。
+
+如果你想要对代码进行修改和开发，请按照下面的”building from source“的步骤，逐步进行
+
 
 ## Uninstallation
 
@@ -107,6 +122,7 @@ In order to get all of this working you need to generate the DevourClient.dll fi
 * `C:\Program Files (x86)\Steam\steamapps\common\Devour\MelonLoader\Il2CppAssemblies\UnityEngine.AnimationModule.dll`
 * `C:\Program Files (x86)\Steam\steamapps\common\Devour\MelonLoader\Il2CppAssemblies\UnityEngine.PhysicsModule.dll`
 * `C:\Program Files (x86)\Steam\steamapps\common\Devour\MelonLoader\Il2CppAssemblies\Il2Cppcom.rlabrecque.steamworks.net.dll`
+* `C:\Program Files (x86)\Steam\steamapps\common\Devour\MelonLoader\Il2CppAssemblies\unity.TextMeshPro.dll`
 8. Build the solutions in Release | Any CPU
 
 ## Contact
@@ -141,3 +157,4 @@ Open an [issue](https://github.com/ALittlePatate/DevourClient/issues/new) or mak
 ## License
 
 [GPL 3.0](https://www.gnu.org/licenses/gpl-3.0.md)
+
