@@ -91,12 +91,11 @@ namespace DevourClient.Hacks
 
                     if (burnAll)
                     {
-						_slaughterhouseAltarController.SkipToGoat(10);
+                        _slaughterhouseAltarController.BurnGoat();
                     }
                     else
                     {
-						_slaughterhouseAltarController.BurnGoat();
-
+                        _slaughterhouseAltarController.SkipToGoat(10);
                     }
 					break;
 
@@ -163,13 +162,11 @@ namespace DevourClient.Hacks
 					else
 					{
 						MelonLogger.Error("azazelBehaviour is null!");
-						Hacks.Misc.ShowMessageBox("azazelBehaviour is null!");
 					}
                 }
 				else
 				{
                     MelonLogger.Error("azazel is null!");
-                    Hacks.Misc.ShowMessageBox("azazel is null!");
                 }
             }
 		}
@@ -233,26 +230,6 @@ namespace DevourClient.Hacks
             _menu.ShowCanvasGroup(_menu.mainMenuCanvasGroup, false);
         }
 		
-		public static void SetSteamName(string name)
-		{
-			Il2CppHorror.Menu Menu_ = UnityEngine.Object.FindObjectOfType<Il2CppHorror.Menu>();
-			if (Menu_ == null)
-            {
-				return;
-            }
-
-			Menu_.steamName = name;
-		}
-		public static void SetServerName(string name)
-        {
-			Il2CppHorror.Menu Menu_ = UnityEngine.Object.FindObjectOfType<Il2CppHorror.Menu>();
-			if (Menu_ == null)
-			{
-				return;
-			}
-
-			Menu_.serverNameText.text = name;
-		}
 
 		public static void BigFlashlight(bool reset)
         {
@@ -379,23 +356,6 @@ namespace DevourClient.Hacks
 			NolanRank.SetRank(rank);
 		}
 
-		public static void MessageSpam(string message)
-        {
-			//TOFIX : not spamming anymore :/
-			if (Helpers.Player.IsInGame())
-			{
-				Il2Cpp.GameUI game_ui_class = UnityEngine.Object.FindObjectOfType<Il2Cpp.GameUI>();
-
-				game_ui_class.textChatInput.text = message;
-				game_ui_class.OnChatMessageSubmit();
-			}
-			else
-			{
-				Il2CppHorror.Menu menu_class = UnityEngine.Object.FindObjectOfType<Il2CppHorror.Menu>();
-				menu_class.textChatInput.text = message;
-				menu_class.OnChatMessageSubmit();
-			}
-		}
 
 		public static void DespawnDemons()
 		{
@@ -474,13 +434,26 @@ namespace DevourClient.Hacks
             }
         }
 
+		public static void DespawnMonkeys()
+		{
+			foreach (Il2Cpp.MonkeyBehaviour monkey in Helpers.Entities.Monkeys)
+			{
+				if (monkey != null)
+				{
+					monkey.Despawn();
+				}
+			}
+		}
+
         public static int ShowMessageBox(string message)
         {
-            Settings.Settings.errorMessage = message;
-            Settings.Settings.errorMessageDisplayTime = 0f;
-            Settings.Settings.showErrorMessage = true;
-            return 0;
-        }
+			//not used, might be useful, some day
+			Il2CppHorror.Menu menu = UnityEngine.Object.FindObjectOfType<Il2CppHorror.Menu>();
+			if (menu == null)
+				return 1;
+			menu.ShowMessageModal(message);
+			return 0;
+		}
 		
 		public static void PlaySound()
         {

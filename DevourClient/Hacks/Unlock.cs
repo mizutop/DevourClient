@@ -22,7 +22,9 @@ namespace DevourClient.Hacks
             }
 
             MelonLoader.MelonLogger.Warning("You need to restart your game for the achievements to be unlocked !!!");
-            Hacks.Misc.ShowMessageBox("You need to restart your game for the achievements to be unlocked !!!");
+            MelonLoader.MelonLogger.Warning("You need to restart your game for the achievements to be unlocked !!!");
+            MelonLoader.MelonLogger.Warning("You need to restart your game for the achievements to be unlocked !!!");
+            MelonLoader.MelonLogger.Warning("You need to restart your game for the achievements to be unlocked !!!");
         }
 
         public static void Doors()
