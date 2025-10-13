@@ -25,8 +25,6 @@ Everything about spoofing ehre (steam name, server name, level...) will persist 
 * Doors unlocker (should work fine, though it doesn't seem to work sometimes)
 * Keys teleporter
 * LV spoofer
-* Steam name spoofer (sets it to "patate", again no input text :/)
-* Server name spoofer (sets it to "patate on top !", again no input text :/)
 * Fly
 * Unlock all, including flashlights, perks, outfits. Active by default, can't be turned off, no persistance.
 * Instant Win (allows you to win instantaniously on any map, works in singleplayer, but not as a client. May be working as host)
@@ -47,9 +45,9 @@ Everything about spoofing ehre (steam name, server name, level...) will persist 
 * Walk in the lobby
 * Change the player's speed
 * Fullbright
-* Create a lobby with no player limit
 * Infinite mirrors (Manor update)
 * Switch between realms (Manor update)
+* Due to the game update, I deleted "Steam name spoofer", "Server name spoofer" and "Create a lobby with no player limit" these three functions.For "steam name spoofer", even changed your name by this function, your teamates can still see your name by steam profile, escape button, and your message in game. For "create a lobby with no player limit", if create a lobby with more than four players, the ghost will be stuck or some of the players will not be able to move. So I have to delete this function.(by manafeng)
 
 ## English Installation Tutorial
 
