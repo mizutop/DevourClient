@@ -1,4 +1,4 @@
-# Unknowncheats thread [here](https://www.unknowncheats.me/forum/other-fps-games/475950-devour-multihack-update.html)
+# No longer on GitHub, moved [HERE](https://git.patate.dev)
 
 # DevourClient
 
@@ -157,4 +157,5 @@ Open an [issue](https://github.com/ALittlePatate/DevourClient/issues/new) or mak
 ## License
 
 [GPL 3.0](https://www.gnu.org/licenses/gpl-3.0.md)
+
 
