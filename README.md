@@ -66,7 +66,7 @@ Devour 游戏的多功能辅助工具，支持中英双语界面。
 
 #### 2. 克隆项目
 ```bash
-git clone https://github.com/your-repo/DevourClient-MelonLoader.git
+git clone https://github.com/mizutop/DevourClient.git
 ```
 
 #### 3. 安装 MelonLoader 到游戏
@@ -109,34 +109,6 @@ dotnet build -c Release
 输出文件：`DevourClient\bin\Release\net6.0\DevourClient.dll`
 
 ---
-
-## 项目结构
-
-```
-DevourClient/
-├── ClientMain.cs          # 主程序入口和UI逻辑
-├── Hacks/
-│   ├── Misc.cs            # 杂项功能实现
-│   ├── Unlock.cs          # 解锁功能
-│   └── ...
-├── Helpers/
-│   ├── Entities.cs        # 实体管理
-│   ├── Player.cs          # 玩家相关
-│   ├── Theme.cs           # 主题管理
-│   └── GUIHelper.cs       # GUI辅助工具
-├── Localization/
-│   └── Loc.cs             # 本地化字符串
-├── Render/
-│   └── Render.cs          # 渲染功能
-├── Settings/
-│   ├── Settings.cs        # 设置存储
-│   └── ConfigManager.cs   # 配置持久化
-└── Hooks/
-    └── Hooks.cs           # Harmony钩子
-```
-
----
-
 ## 卸载
 
 删除游戏目录下的以下文件夹和文件：
