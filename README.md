@@ -3,7 +3,7 @@
 Devour 游戏的多功能辅助工具，支持中英双语界面。
 
 ## 功能特性
-
+![menu screenshot](Screenshots/menu2.0.png)
 ### 视觉功能
 - 增强手电筒 - 扩大手电筒照明范围
 - 全亮模式 - 全图明亮
