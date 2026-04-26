@@ -9,8 +9,8 @@ Very based cheat for the game Devour.
 Well at this point i don't really know, i think there is some sort of native Unity anti cheat template but it doesn't seem active. You're fine, no anti cheat !
 
 ## Menu
-![menu screenshot](Screenshots/menu.png)![Uploading 屏幕截图 2026-04-26 234736.png…]()
-
+![menu screenshot](Screenshots/menu.png)
+![menu screenshot](Screenshots/menu2.0.png)
 
 ## 中文安装指南
 如果你只是想要安装这个插件，直接在游戏里使用的话
