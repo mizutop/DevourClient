@@ -11,6 +11,64 @@ Well at this point i don't really know, i think there is some sort of native Uni
 ## Menu
 ![menu screenshot](Screenshots/menu.png)
 
+## 中文安装指南
+如果你只是想要安装这个插件，直接在游戏里使用的话
+
+1、安装 .net 6 的运行环境 → (https://dotnet.microsoft.com/en-us/download/dotnet/6.0)
+
+2、安装melonloader → (https://github.com/LavaGang/MelonLoader/releases)我这边安装的是v0.6.4都可以参考一下啊,0.7.的最新版好像不行。
+        版本无限制，尽量选择新版即可。打开melonloader页面后，点击devour进入安装界面，全部默认即可，无需勾选或修改其他选项，点击install进行安装（安装过程中可能需要vpn支持）
+    
+3、安装dll文件 → 从本项目的release中下载最新的dll文件，然后将此文件添加到你的devour的安装目录中的mods文件夹里（不知道目录的情况下，可以在steam中右键devour，选择“管理”-“浏览本地文件”即可）
+
+4、运行devour → 如果安装成功，你会看到一个windows窗口进行各类安装提示后，自动进入游戏。点击insert键即可打开和关闭devourclient窗口
+
+ps:有些电脑在安装melonloader之后，会出现fatal error的提示，这个我目前并没有碰到过。但是出现这个提示的主要原因，基本是melonloader安装过程中，提取到devour根目录的melonloader文件夹里的文件出现了问题，比较简单的解决办法就是（1）在别人的同系统同位宽（x86，x32）的电脑里拷贝出来他的melonloader文件夹，然后直接粘贴到自己的电脑里。（2）将melonloader文件夹完全删除，然后重装。
+
+如果你想要对代码进行修改和开发，请按照下面的”building from source“的步骤，逐步进行
+
+
+## Uninstallation
+
+0. Delete the folders `MelonLoader`, `Mods`, `Plugins`, `UserData`, and the file `version.dll` from `C:\Program Files (x86)\Steam\steamapps\common\Devour`
+
+## Building from source
+
+0. Clone the repository (or Code -> Download Zip)
+1. Install [.NET 6 SDK and runtime](https://dotnet.microsoft.com/en-us/download/dotnet/6.0).
+2. Install [MelonLoader](https://github.com/LavaGang/MelonLoader/releases) V0.6.4 (go to Settings -> tick "Show ALPHA Pre-Releases") to Devour.
+3. Start your game. A cmd should appear, don't close it, MelonLoader is installing and decompiling Devour's game assemblies.
+4. Wait for the process to finish, once it's done close the game.
+5. Open the solution file (DevourClient.sln) in Visual Studio
+6. Go to : Project --> Add a reference --> Browse --> Click on the browse button in the down right corner of the window.
+7. Add those files :
+* `C:\Program Files (x86)\Steam\steamapps\common\Devour\MelonLoader\net6\MelonLoader.dll`
+* `C:\Program Files (x86)\Steam\steamapps\common\Devour\MelonLoader\net6\0Harmony.dll`
+* `C:\Program Files (x86)\Steam\steamapps\common\Devour\MelonLoader\net6\Il2CppInterop.Runtime.dll`
+* `C:\Program Files (x86)\Steam\steamapps\common\Devour\MelonLoader\Il2CppAssemblies\Assembly-CSharp.dll`
+* `C:\Program Files (x86)\Steam\steamapps\common\Devour\MelonLoader\Il2CppAssemblies\Il2CppOpsive.UltimateCharacterController.dll`
+* `C:\Program Files (x86)\Steam\steamapps\common\Devour\MelonLoader\Il2CppAssemblies\Il2CppBehaviorDesigner.Runtime.dll`
+* `C:\Program Files (x86)\Steam\steamapps\common\Devour\MelonLoader\Il2CppAssemblies\Il2Cppbolt.user.dll`
+* `C:\Program Files (x86)\Steam\steamapps\common\Devour\MelonLoader\Il2CppAssemblies\Il2Cppbolt.dll`
+* `C:\Program Files (x86)\Steam\steamapps\common\Devour\MelonLoader\Il2CppAssemblies\Il2Cppmscorlib.dll`
+* `C:\Program Files (x86)\Steam\steamapps\common\Devour\MelonLoader\Il2CppAssemblies\UnityEngine.IMGUIModule.dll`
+* `C:\Program Files (x86)\Steam\steamapps\common\Devour\MelonLoader\Il2CppAssemblies\UnityEngine.InputLegacyModule.dll`
+* `C:\Program Files (x86)\Steam\steamapps\common\Devour\MelonLoader\Il2CppAssemblies\UnityEngine.HotReloadModule.dll`
+* `C:\Program Files (x86)\Steam\steamapps\common\Devour\MelonLoader\Il2CppAssemblies\UnityEngine.UI.dll`
+* `C:\Program Files (x86)\Steam\steamapps\common\Devour\MelonLoader\Il2CppAssemblies\UnityEngine.UIModule.dll`
+* `C:\Program Files (x86)\Steam\steamapps\common\Devour\MelonLoader\Il2CppAssemblies\UnityEngine.dll`
+* `C:\Program Files (x86)\Steam\steamapps\common\Devour\MelonLoader\Il2CppAssemblies\UnityEngine.CoreModule.dll`
+* `C:\Program Files (x86)\Steam\steamapps\common\Devour\MelonLoader\Il2CppAssemblies\UnityEngine.InputModule.dll`
+* `C:\Program Files (x86)\Steam\steamapps\common\Devour\MelonLoader\Il2CppAssemblies\Il2Cppudpkit.common.dll`
+* `C:\Program Files (x86)\Steam\steamapps\common\Devour\MelonLoader\Il2CppAssemblies\Il2Cppudpkit.dll`
+* `C:\Program Files (x86)\Steam\steamapps\common\Devour\MelonLoader\Il2CppAssemblies\Il2Cppudpkit.platform.photon.dll`
+* `C:\Program Files (x86)\Steam\steamapps\common\Devour\MelonLoader\Il2CppAssemblies\UnityEngine.AnimationModule.dll`
+* `C:\Program Files (x86)\Steam\steamapps\common\Devour\MelonLoader\Il2CppAssemblies\UnityEngine.PhysicsModule.dll`
+* `C:\Program Files (x86)\Steam\steamapps\common\Devour\MelonLoader\Il2CppAssemblies\Il2Cppcom.rlabrecque.steamworks.net.dll`
+* `C:\Program Files (x86)\Steam\steamapps\common\Devour\MelonLoader\Il2CppAssemblies\unity.TextMeshPro.dll`
+8. Build the solutions in Release | Any CPU
+
+
 ## Features
 Everything about spoofing ehre (steam name, server name, level...) will persist if you don't uncheck it (it will be reseted when you'll restart the game obv).
 * An IMGUI menu thanks to UnityEngine
@@ -68,62 +126,6 @@ In order to get all of this working you need to generate the DevourClient.dll fi
 2. Put the DevourClient.dll file located in `DevourClient\bin\Release\net6.0` inside `C:\Program Files (x86)\Steam\steamapps\common\Devour\Mods` folder.
 3. Start the game, now you have successfully installed DevourClient. Use INSERT to open the menu
 
-## 中文安装指南
-如果你只是想要安装这个插件，直接在游戏里使用的话
-
-1、安装 .net 6 的运行环境 → (https://dotnet.microsoft.com/en-us/download/dotnet/6.0)
-
-2、安装melonloader → (https://github.com/LavaGang/MelonLoader/releases)
-        版本无限制，尽量选择新版即可。打开melonloader页面后，点击devour进入安装界面，全部默认即可，无需勾选或修改其他选项，点击install进行安装（安装过程中可能需要vpn支持）
-    
-3、安装dll文件 → 从本项目的release中下载最新的dll文件，然后将此文件添加到你的devour的安装目录中的mods文件夹里（不知道目录的情况下，可以在steam中右键devour，选择“管理”-“浏览本地文件”即可）
-
-4、运行devour → 如果安装成功，你会看到一个windows窗口进行各类安装提示后，自动进入游戏。点击insert键即可打开和关闭devourclient窗口
-
-ps:有些电脑在安装melonloader之后，会出现fatal error的提示，这个我目前并没有碰到过。但是出现这个提示的主要原因，基本是melonloader安装过程中，提取到devour根目录的melonloader文件夹里的文件出现了问题，比较简单的解决办法就是（1）在别人的同系统同位宽（x86，x32）的电脑里拷贝出来他的melonloader文件夹，然后直接粘贴到自己的电脑里。（2）将melonloader文件夹完全删除，然后重装。
-
-如果你想要对代码进行修改和开发，请按照下面的”building from source“的步骤，逐步进行
-
-
-## Uninstallation
-
-0. Delete the folders `MelonLoader`, `Mods`, `Plugins`, `UserData`, and the file `version.dll` from `C:\Program Files (x86)\Steam\steamapps\common\Devour`
-
-## Building from source
-
-0. Clone the repository (or Code -> Download Zip)
-1. Install [.NET 6 SDK and runtime](https://dotnet.microsoft.com/en-us/download/dotnet/6.0).
-2. Install [MelonLoader](https://github.com/LavaGang/MelonLoader/releases) V0.6.4 (go to Settings -> tick "Show ALPHA Pre-Releases") to Devour.
-3. Start your game. A cmd should appear, don't close it, MelonLoader is installing and decompiling Devour's game assemblies.
-4. Wait for the process to finish, once it's done close the game.
-5. Open the solution file (DevourClient.sln) in Visual Studio
-6. Go to : Project --> Add a reference --> Browse --> Click on the browse button in the down right corner of the window.
-7. Add those files :
-* `C:\Program Files (x86)\Steam\steamapps\common\Devour\MelonLoader\net6\MelonLoader.dll`
-* `C:\Program Files (x86)\Steam\steamapps\common\Devour\MelonLoader\net6\0Harmony.dll`
-* `C:\Program Files (x86)\Steam\steamapps\common\Devour\MelonLoader\net6\Il2CppInterop.Runtime.dll`
-* `C:\Program Files (x86)\Steam\steamapps\common\Devour\MelonLoader\Il2CppAssemblies\Assembly-CSharp.dll`
-* `C:\Program Files (x86)\Steam\steamapps\common\Devour\MelonLoader\Il2CppAssemblies\Il2CppOpsive.UltimateCharacterController.dll`
-* `C:\Program Files (x86)\Steam\steamapps\common\Devour\MelonLoader\Il2CppAssemblies\Il2CppBehaviorDesigner.Runtime.dll`
-* `C:\Program Files (x86)\Steam\steamapps\common\Devour\MelonLoader\Il2CppAssemblies\Il2Cppbolt.user.dll`
-* `C:\Program Files (x86)\Steam\steamapps\common\Devour\MelonLoader\Il2CppAssemblies\Il2Cppbolt.dll`
-* `C:\Program Files (x86)\Steam\steamapps\common\Devour\MelonLoader\Il2CppAssemblies\Il2Cppmscorlib.dll`
-* `C:\Program Files (x86)\Steam\steamapps\common\Devour\MelonLoader\Il2CppAssemblies\UnityEngine.IMGUIModule.dll`
-* `C:\Program Files (x86)\Steam\steamapps\common\Devour\MelonLoader\Il2CppAssemblies\UnityEngine.InputLegacyModule.dll`
-* `C:\Program Files (x86)\Steam\steamapps\common\Devour\MelonLoader\Il2CppAssemblies\UnityEngine.HotReloadModule.dll`
-* `C:\Program Files (x86)\Steam\steamapps\common\Devour\MelonLoader\Il2CppAssemblies\UnityEngine.UI.dll`
-* `C:\Program Files (x86)\Steam\steamapps\common\Devour\MelonLoader\Il2CppAssemblies\UnityEngine.UIModule.dll`
-* `C:\Program Files (x86)\Steam\steamapps\common\Devour\MelonLoader\Il2CppAssemblies\UnityEngine.dll`
-* `C:\Program Files (x86)\Steam\steamapps\common\Devour\MelonLoader\Il2CppAssemblies\UnityEngine.CoreModule.dll`
-* `C:\Program Files (x86)\Steam\steamapps\common\Devour\MelonLoader\Il2CppAssemblies\UnityEngine.InputModule.dll`
-* `C:\Program Files (x86)\Steam\steamapps\common\Devour\MelonLoader\Il2CppAssemblies\Il2Cppudpkit.common.dll`
-* `C:\Program Files (x86)\Steam\steamapps\common\Devour\MelonLoader\Il2CppAssemblies\Il2Cppudpkit.dll`
-* `C:\Program Files (x86)\Steam\steamapps\common\Devour\MelonLoader\Il2CppAssemblies\Il2Cppudpkit.platform.photon.dll`
-* `C:\Program Files (x86)\Steam\steamapps\common\Devour\MelonLoader\Il2CppAssemblies\UnityEngine.AnimationModule.dll`
-* `C:\Program Files (x86)\Steam\steamapps\common\Devour\MelonLoader\Il2CppAssemblies\UnityEngine.PhysicsModule.dll`
-* `C:\Program Files (x86)\Steam\steamapps\common\Devour\MelonLoader\Il2CppAssemblies\Il2Cppcom.rlabrecque.steamworks.net.dll`
-* `C:\Program Files (x86)\Steam\steamapps\common\Devour\MelonLoader\Il2CppAssemblies\unity.TextMeshPro.dll`
-8. Build the solutions in Release | Any CPU
 
 ## Contact
 
