@@ -22,7 +22,7 @@ Well at this point i don't really know, i think there is some sort of native Uni
     
 3、安装dll文件 → 从本项目的release中下载最新的dll文件，然后将此文件添加到你的devour的安装目录中的mods文件夹里（不知道目录的情况下，可以在steam中右键devour，选择“管理”-“浏览本地文件”即可）
 
-4、运行devour → 如果安装成功，你会看到一个windows窗口进行各类安装提示后，自动进入游戏。点击insert键即可打开和关闭devourclient窗口
+4、运行devour → 如果安装成功，你会看到一个windows窗口进行各类安装提示后，自动进入游戏。点击Del(我修改了原作者的insert为Del)键即可打开和关闭devourclient窗口
 
 ps:有些电脑在安装melonloader之后，会出现fatal error的提示，这个我目前并没有碰到过。但是出现这个提示的主要原因，基本是melonloader安装过程中，提取到devour根目录的melonloader文件夹里的文件出现了问题，比较简单的解决办法就是（1）在别人的同系统同位宽（x86，x32）的电脑里拷贝出来他的melonloader文件夹，然后直接粘贴到自己的电脑里。（2）将melonloader文件夹完全删除，然后重装。
 
