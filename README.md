@@ -9,7 +9,7 @@ Devour 游戏的多功能辅助工具，支持中英双语界面。
 其实3.0和4.0差异无非就是服装外观的解锁,当然好像只能单机使用,多人模式会有steam验证好像,毕竟我也没试过。
 ## 功能特性
 ![menu screenshot](Screenshots/menu2.0.png)
-
+![menu screenshot](Screenshots/menu3.0.png)
 ## 中文安装指南
 
 ### 安装步骤
