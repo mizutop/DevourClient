@@ -21,7 +21,7 @@ Devour 游戏的多功能辅助工具，支持中英双语界面。
 
 #### 第二步：安装 MelonLoader
 1. 访问 https://github.com/LavaGang/MelonLoader/releases
-2. 下载 `MelonLoader.Installer.exe`（建议使用 v0.6.4 版本）
+2. 下载 `MelonLoader.Installer.exe`（建议使用 v0.6.4 版本）new!!我最近开发的时候使用的都是v0.7.2，或许你也可以试试
 3. 运行安装程序，选择 Devour 游戏路径
 4. 点击 Install 进行安装
 
